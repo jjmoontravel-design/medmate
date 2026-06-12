@@ -1,6 +1,6 @@
 /* MedMate service worker — network-first so updates land immediately,
    cache fallback so the app keeps working offline. */
-const CACHE = "medmate-v1";
+const CACHE = "medmate-v2";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", (e) => {

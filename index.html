@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0e7c6b">
+<meta name="description" content="MedMate — daily food &amp; lifestyle guidance based on the medications you take, with dose reminders, refill tracking, and a printable doctor report. All data stays on your device.">
+<meta property="og:title" content="MedMate — Daily Wellness Companion">
+<meta property="og:description" content="Daily food &amp; lifestyle guidance based on your medications. Private by design — everything stays on your device.">
+<meta property="og:image" content="icon-512.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -141,6 +145,16 @@
     background: var(--accent); color: #fff; border: none; border-radius: 10px; cursor: pointer;
   }
   .hidden { display: none !important; }
+  .update-toast {
+    position: fixed; bottom: 52px; left: 50%; transform: translateX(-50%);
+    background: var(--ink); color: #fff; padding: 12px 18px; border-radius: 12px;
+    font-size: .95rem; z-index: 60; box-shadow: 0 8px 24px rgba(0,0,0,.25);
+    display: flex; align-items: center; gap: 12px; white-space: nowrap;
+  }
+  .update-toast button {
+    background: var(--accent); color: #fff; border: none; border-radius: 8px;
+    padding: 7px 14px; font-weight: 700; cursor: pointer;
+  }
   /* reminders */
   .btn-small {
     padding: 6px 14px; font-size: .88rem; font-weight: 600;
@@ -654,6 +668,54 @@ const MEDS = [
     {t:"do", x:"Stick to the dose your doctor suggested; more is not better with vitamin D."} ]},
 ];
 
+/* plain-English "what is this medicine for?" — shown on the med list and doctor report */
+const WHAT = {
+  levothyroxine: "Replaces thyroid hormone when your thyroid is underactive — supports energy, weight, and warmth.",
+  metformin: "Lowers blood sugar in type 2 diabetes by helping your body use its own insulin better.",
+  atorvastatin: "Lowers 'bad' LDL cholesterol to protect your heart and arteries.",
+  simvastatin: "Lowers 'bad' LDL cholesterol to protect your heart and arteries.",
+  rosuvastatin: "Lowers 'bad' LDL cholesterol to protect your heart and arteries.",
+  lisinopril: "Relaxes blood vessels to lower blood pressure and protect the heart and kidneys.",
+  losartan: "Lowers blood pressure by relaxing blood vessels — often chosen when an ACE inhibitor causes a cough.",
+  amlodipine: "Relaxes blood vessel walls to lower blood pressure and ease chest pain.",
+  metoprolol: "Slows and steadies the heart — used for blood pressure, chest pain, and after heart attacks.",
+  hydrochlorothiazide: "A gentle 'water pill' that sheds extra salt and fluid to lower blood pressure.",
+  furosemide: "A strong 'water pill' that removes extra fluid — used for heart failure, swelling, and blood pressure.",
+  omeprazole: "Reduces stomach acid to treat heartburn, reflux (GERD), and ulcers.",
+  pantoprazole: "Reduces stomach acid to treat heartburn, reflux (GERD), and ulcers.",
+  sertraline: "An antidepressant (SSRI) that helps with depression and anxiety by balancing serotonin.",
+  escitalopram: "An antidepressant (SSRI) that helps with depression and anxiety by balancing serotonin.",
+  citalopram: "An antidepressant (SSRI) that helps with depression and anxiety by balancing serotonin.",
+  fluoxetine: "An antidepressant (SSRI) that helps with depression, anxiety, and OCD by balancing serotonin.",
+  duloxetine: "Helps with depression, anxiety, and certain nerve pain by balancing brain chemicals.",
+  trazodone: "Most often used at low doses to help with sleep; also treats depression.",
+  warfarin: "Thins the blood to prevent dangerous clots and strokes.",
+  aspirin81: "A daily low dose keeps blood platelets from clumping — helps prevent heart attack and stroke.",
+  clopidogrel: "Keeps blood platelets from clumping — protects heart stents and helps prevent heart attack and stroke.",
+  apixaban: "A blood thinner that prevents strokes and clots, often prescribed for atrial fibrillation.",
+  ibuprofen: "Relieves pain, fever, and inflammation (an NSAID).",
+  naproxen: "Relieves pain, fever, and inflammation (an NSAID) — longer-lasting than ibuprofen.",
+  acetaminophen: "Relieves pain and fever; gentle on the stomach when kept within the daily limit.",
+  tramadol: "A prescription medicine for moderate pain when over-the-counter options aren't enough.",
+  gabapentin: "Calms overactive nerves — used for nerve pain and seizures.",
+  prednisone: "A steroid that quickly reduces inflammation and calms an overactive immune system.",
+  levofloxacin: "An antibiotic that fights bacterial infections such as pneumonia and urinary infections.",
+  doxycycline: "An antibiotic for skin, lung, dental, and tick-borne infections.",
+  amoxicillin: "A penicillin antibiotic for ear, throat, dental, and chest infections.",
+  insulin: "Replaces or tops up the body's insulin to control blood sugar in diabetes.",
+  glipizide: "Helps your pancreas release more insulin to lower blood sugar in type 2 diabetes.",
+  sitagliptin: "Boosts insulin after meals to control blood sugar in type 2 diabetes.",
+  alendronate: "Strengthens bones and helps prevent fractures in osteoporosis.",
+  montelukast: "Helps prevent asthma attacks and controls allergy symptoms.",
+  atenolol: "Slows and steadies the heart to lower blood pressure.",
+  carvedilol: "Slows the heart and relaxes vessels — used for heart failure and blood pressure.",
+  spironolactone: "A potassium-sparing water pill for blood pressure, heart failure, and fluid retention.",
+  allopurinol: "Lowers uric acid to prevent gout attacks and some kidney stones.",
+  tamsulosin: "Relaxes prostate and bladder muscles so urine flows more easily (enlarged prostate).",
+  iron: "Rebuilds iron stores to treat or prevent anemia (low red blood cells).",
+  vitamind: "Supports bones, muscles, and immunity — supplemented when blood levels run low.",
+};
+
 /* well-known combination cautions (educational flags only) */
 const COMBOS = [
   { a:["warfarin","apixaban","clopidogrel"], b:["ibuprofen","naproxen","aspirin81"],
@@ -690,6 +752,15 @@ const GENERAL = [
 let myMeds = JSON.parse(localStorage.getItem("medmate.meds") || "[]");
 const save = () => localStorage.setItem("medmate.meds", JSON.stringify(myMeds));
 const byId = id => MEDS.find(m => m.id === id);
+
+/* user-entered dose strength per med, e.g. "500 mg" */
+let medDoses = JSON.parse(localStorage.getItem("medmate.doses") || "{}");
+function setDose(id, v) {
+  v = v.trim();
+  if (v) medDoses[id] = v; else delete medDoses[id];
+  localStorage.setItem("medmate.doses", JSON.stringify(medDoses));
+}
+const doseLabel = id => medDoses[id] ? ` <span style="font-weight:400;color:var(--ink-soft)">${medDoses[id]}</span>` : "";
 
 /* ---------------- welcome ---------------- */
 if (!localStorage.getItem("medmate.welcomed")) {
@@ -744,6 +815,7 @@ function removeMed(id) {
   myMeds = myMeds.filter(x => x !== id); save();
   delete reminders[id]; saveRem();
   delete refills[id]; saveRefills();
+  setDose(id, "");
   renderMeds();
 }
 
@@ -757,7 +829,14 @@ function renderMeds() {
   box.innerHTML = myMeds.map(id => {
     const m = byId(id);
     return `<div class="med">
-      <div><div class="name">${m.name}</div><div class="cls">${m.brands.join(", ")} · ${m.cls}</div></div>
+      <div style="flex:1">
+        <div class="name">${m.name}${doseLabel(id)}</div>
+        <div class="cls">${m.brands.join(", ")} · ${m.cls}</div>
+        ${WHAT[id] ? `<div class="cls" style="margin-top:3px">💬 ${WHAT[id]}</div>` : ""}
+        <input type="text" value="${medDoses[id] || ""}" placeholder="Strength (e.g. 500 mg) — optional"
+               onchange="setDose('${id}', this.value); renderMeds()"
+               style="margin-top:7px;width:100%;max-width:260px;padding:6px 10px;font-size:.85rem;border:1px solid var(--border);border-radius:8px">
+      </div>
       <button onclick="removeMed('${m.id}')">Remove</button>
     </div>`;
   }).join("");
@@ -979,7 +1058,7 @@ function renderToday() {
         (due ? ` <button class="btn-small ghost" onclick="snoozeDose('${e.key}')">😴 30 min</button>` : "");
     return `<div class="today-item ${cls}">
       <span class="t">${fmt12(e.t)}</span>
-      <span style="flex:1"><b>${m.name}</b>${windowLabel(e.t) ? `<br><span class="muted" style="font-size:.8rem">${windowLabel(e.t)}</span>` : ""}</span>
+      <span style="flex:1"><b>${m.name}</b>${doseLabel(e.id)}${windowLabel(e.t) ? `<br><span class="muted" style="font-size:.8rem">${windowLabel(e.t)}</span>` : ""}</span>
       <span class="status">${status}</span>
       ${btn}
     </div>`;
@@ -1327,8 +1406,8 @@ function printReport() {
   const rows = myMeds.map(id => {
     const m = byId(id), r = refillStatus(id);
     return `<tr>
-      <td><b>${m.name}</b><br><span class="small">${m.brands.join(", ")}</span></td>
-      <td>${m.cls}</td>
+      <td><b>${m.name}</b>${medDoses[id] ? " " + medDoses[id] : ""}<br><span class="small">${m.brands.join(", ")}</span></td>
+      <td>${m.cls}${WHAT[id] ? `<br><span class="small">${WHAT[id]}</span>` : ""}</td>
       <td>${(reminders[id] || []).map(fmt12).join(", ") || "—"}</td>
       <td>${r ? r.pills + " (~" + r.daysLeft + " days)" : "—"}</td>
     </tr>`;
@@ -1505,6 +1584,15 @@ renderMeds();
 /* PWA: register the service worker so MedMate can be installed and works offline */
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("./sw.js").catch(() => {});
+  /* when a new version of the app takes over, offer a one-tap refresh */
+  let hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!hadController) { hadController = true; return; }  // first install, not an update
+    const t = document.createElement("div");
+    t.className = "update-toast";
+    t.innerHTML = `✨ MedMate was updated. <button onclick="location.reload()">Refresh now</button>`;
+    document.body.appendChild(t);
+  });
 }
 </script>
 </body>
