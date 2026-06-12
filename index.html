@@ -666,6 +666,81 @@ const MEDS = [
   { id:"vitamind", name:"Vitamin D", brands:["D3","Cholecalciferol"], cls:"Supplement", tips:[
     {t:"time", x:"Take it with a meal that contains some fat — it absorbs much better that way."},
     {t:"do", x:"Stick to the dose your doctor suggested; more is not better with vitamin D."} ]},
+  { id:"famotidine", name:"Famotidine", brands:["Pepcid"], cls:"Acid reducer (H2 blocker)", tips:[
+    {t:"time", x:"For heartburn prevention, take it 15–60 minutes before the meal that usually triggers it."},
+    {t:"avoid", x:"Limit common reflux triggers: very fatty meals, late-night eating, excess coffee and alcohol."},
+    {t:"do", x:"Finishing dinner 2–3 hours before lying down helps reflux symptoms."} ]},
+  { id:"cetirizine", name:"Cetirizine", brands:["Zyrtec"], cls:"Allergy (antihistamine)", tips:[
+    {t:"time", x:"Once daily — evening works well if it makes you a little drowsy."},
+    {t:"avoid", x:"Limit alcohol, which adds to any drowsiness."} ]},
+  { id:"loratadine", name:"Loratadine", brands:["Claritin"], cls:"Allergy (antihistamine)", tips:[
+    {t:"time", x:"Once daily, with or without food — same time each day works best."},
+    {t:"do", x:"One of the least-drowsy antihistamines, but see how it affects you before driving."} ]},
+  { id:"albuterol", name:"Albuterol inhaler", brands:["ProAir","Ventolin","Proventil"], cls:"Asthma / COPD (rescue inhaler)", tips:[
+    {t:"do", x:"Keep it with you — a rescue inhaler only helps if it's in reach."},
+    {t:"do", x:"If you're using it more than twice a week, tell your doctor — your daily controller plan may need adjusting."},
+    {t:"avoid", x:"Heavy caffeine can stack with the jittery, fast-heartbeat feeling it sometimes causes."},
+    {t:"do", x:"Shake well, breathe out fully, then inhale slowly as you press — slow beats forceful."} ]},
+  { id:"azithromycin", name:"Azithromycin", brands:["Zithromax","Z-Pak"], cls:"Antibiotic (macrolide)", tips:[
+    {t:"time", x:"Can be taken with or without food; food helps if it upsets your stomach."},
+    {t:"avoid", x:"Keep aluminum/magnesium antacids at least 2 hours away from each dose."},
+    {t:"do", x:"Finish the full course unless your doctor says otherwise."} ]},
+  { id:"cephalexin", name:"Cephalexin", brands:["Keflex"], cls:"Antibiotic (cephalosporin)", tips:[
+    {t:"time", x:"Space doses evenly through the day; with food helps if it upsets your stomach."},
+    {t:"do", x:"Finish the full course unless your doctor says otherwise."},
+    {t:"eat", x:"Plain yogurt or other probiotic foods may help with antibiotic-related stomach upset."} ]},
+  { id:"digoxin", name:"Digoxin", brands:["Lanoxin"], cls:"Heart rhythm / heart failure", tips:[
+    {t:"time", x:"Take it at the same time every day — steady levels matter a lot with this medicine."},
+    {t:"do", x:"Keep every blood-test appointment — potassium and digoxin levels are how your dose stays safe."},
+    {t:"do", x:"Call your doctor for nausea, loss of appetite, or vision changes (like yellow-green halos) — early signs the level is too high."},
+    {t:"do", x:"Stay normally hydrated; dehydration from vomiting or diarrhea can push levels up."} ]},
+  { id:"amiodarone", name:"Amiodarone", brands:["Pacerone","Cordarone"], cls:"Heart rhythm", tips:[
+    {t:"avoid", x:"Strictly avoid grapefruit and grapefruit juice — the interaction with amiodarone is significant."},
+    {t:"do", x:"Use strong sun protection — this medicine makes skin burn unusually easily."},
+    {t:"do", x:"Keep all scheduled thyroid, lung, liver, and eye check-ups — they're part of taking this medicine safely."},
+    {t:"time", x:"Take it consistently — either always with food or always without."} ]},
+  { id:"diltiazem", name:"Diltiazem", brands:["Cardizem","Tiazac"], cls:"Blood pressure / heart (calcium-channel blocker)", tips:[
+    {t:"avoid", x:"Avoid large amounts of grapefruit juice — it can raise levels of this medicine."},
+    {t:"avoid", x:"Don't stop suddenly — talk to your doctor first."},
+    {t:"do", x:"Stand up slowly if you feel light-headed."} ]},
+  { id:"valsartan", name:"Valsartan", brands:["Diovan"], cls:"Blood pressure (ARB)", tips:[
+    {t:"avoid", x:"Avoid potassium-based salt substitutes unless your doctor approves."},
+    {t:"eat", x:"Favor a lower-sodium eating pattern — it helps blood pressure medicines work better."},
+    {t:"do", x:"Stand up slowly at first if you feel light-headed."} ]},
+  { id:"pravastatin", name:"Pravastatin", brands:["Pravachol"], cls:"Cholesterol (statin)", tips:[
+    {t:"time", x:"Usually taken in the evening, with or without food."},
+    {t:"do", x:"Good news: grapefruit is not a meaningful issue with this particular statin."},
+    {t:"do", x:"Tell your doctor about unexplained muscle pain or weakness."},
+    {t:"eat", x:"A heart-healthy diet (vegetables, fish, whole grains) supports treatment."} ]},
+  { id:"ezetimibe", name:"Ezetimibe", brands:["Zetia"], cls:"Cholesterol", tips:[
+    {t:"time", x:"Once daily, any time, with or without food."},
+    {t:"eat", x:"It blocks cholesterol absorption — a heart-healthy diet makes it work even better."} ]},
+  { id:"methotrexate", name:"Methotrexate (weekly)", brands:["Trexall","Rheumatrex"], cls:"Rheumatoid arthritis / psoriasis", tips:[
+    {t:"time", x:"⚠️ Taken ONCE A WEEK on the same day — never daily. Accidental daily dosing is dangerous; a weekly reminder is essential."},
+    {t:"avoid", x:"Avoid alcohol — the combination is hard on the liver."},
+    {t:"do", x:"Take folic acid exactly as your doctor prescribed it — it reduces side effects."},
+    {t:"avoid", x:"Check with your doctor before regular ibuprofen/naproxen use."},
+    {t:"do", x:"Drink plenty of fluids on your dose day."} ]},
+  { id:"calcium", name:"Calcium supplement", brands:["Caltrate","Tums (as supplement)","Citracal"], cls:"Supplement", tips:[
+    {t:"time", x:"Your body absorbs calcium best in doses of 500 mg or less — split larger amounts across the day."},
+    {t:"eat", x:"Calcium carbonate absorbs best with food; calcium citrate works with or without."},
+    {t:"avoid", x:"Keep calcium at least 4 hours from thyroid medicine and 2 hours from iron or certain antibiotics."} ]},
+  { id:"magnesium", name:"Magnesium supplement", brands:["Mag-Ox","Slow-Mag"], cls:"Supplement", tips:[
+    {t:"time", x:"Take with food to reduce stomach upset."},
+    {t:"avoid", x:"Keep it at least 2 hours from certain antibiotics (like ciprofloxacin or doxycycline) and from gabapentin."},
+    {t:"do", x:"Loose stools are the most common side effect — a lower dose or a different form (glycinate) often fixes it."} ]},
+  { id:"melatonin", name:"Melatonin", brands:["Various"], cls:"Sleep (supplement)", tips:[
+    {t:"time", x:"Take it 30–60 minutes before your intended bedtime."},
+    {t:"do", x:"Start with a low dose (0.5–1 mg) — more is often not better with melatonin."},
+    {t:"do", x:"Dim the lights and put screens away after taking it — light works against melatonin."},
+    {t:"avoid", x:"Skip alcohol near bedtime; it fragments sleep and adds drowsiness unpredictably."} ]},
+  { id:"diphenhydramine", name:"Diphenhydramine", brands:["Benadryl","ZzzQuil"], cls:"Allergy / sleep (sedating antihistamine)", tips:[
+    {t:"avoid", x:"No driving after taking it — drowsiness is strong and can linger into the next morning."},
+    {t:"avoid", x:"Avoid alcohol and other sedating medicines — the effects stack."},
+    {t:"do", x:"For adults over 65, ask a doctor about gentler alternatives — this medicine commonly causes next-day grogginess, confusion, and fall risk in seniors."} ]},
+  { id:"folicacid", name:"Folic acid", brands:["Folate"], cls:"Supplement (B vitamin)", tips:[
+    {t:"time", x:"Once daily, any time, with or without food."},
+    {t:"do", x:"If it was prescribed alongside methotrexate, take it exactly on the schedule your doctor set."} ]},
 ];
 
 /* plain-English "what is this medicine for?" — shown on the med list and doctor report */
@@ -714,6 +789,24 @@ const WHAT = {
   tamsulosin: "Relaxes prostate and bladder muscles so urine flows more easily (enlarged prostate).",
   iron: "Rebuilds iron stores to treat or prevent anemia (low red blood cells).",
   vitamind: "Supports bones, muscles, and immunity — supplemented when blood levels run low.",
+  famotidine: "Reduces stomach acid to relieve and prevent heartburn and ulcers.",
+  cetirizine: "Relieves allergy symptoms — sneezing, runny nose, itchy eyes, hives.",
+  loratadine: "Relieves allergy symptoms with minimal drowsiness.",
+  albuterol: "A rescue inhaler that quickly opens airways during asthma or COPD flare-ups.",
+  azithromycin: "An antibiotic for chest, sinus, throat, and some skin infections.",
+  cephalexin: "An antibiotic for skin, urinary, and respiratory infections.",
+  digoxin: "Steadies and strengthens the heartbeat — used in heart failure and atrial fibrillation.",
+  amiodarone: "Controls serious irregular heart rhythms.",
+  diltiazem: "Relaxes blood vessels and steadies heart rate — for blood pressure and heart rhythm.",
+  valsartan: "Lowers blood pressure by relaxing blood vessels.",
+  pravastatin: "Lowers 'bad' LDL cholesterol to protect your heart and arteries.",
+  ezetimibe: "Lowers cholesterol by blocking how much your gut absorbs from food.",
+  methotrexate: "Calms an overactive immune system — for rheumatoid arthritis and psoriasis. Taken WEEKLY, not daily.",
+  calcium: "Supports bone strength; often paired with vitamin D for osteoporosis prevention.",
+  magnesium: "Supports muscles, nerves, and heart rhythm; treats low magnesium levels.",
+  melatonin: "A natural sleep-timing hormone that helps you fall asleep sooner.",
+  diphenhydramine: "A sedating antihistamine used for allergies and occasional sleeplessness.",
+  folicacid: "A B vitamin for healthy blood cells — also protects against methotrexate side effects.",
 };
 
 /* well-known combination cautions (educational flags only) */
@@ -738,6 +831,26 @@ const COMBOS = [
     msg:"Two NSAIDs together add stomach and kidney risk without much extra benefit. Check with your pharmacist." },
   { a:["levothyroxine"], b:["omeprazole","pantoprazole"],
     msg:"Acid reducers can lower levothyroxine absorption over time. Mention this pairing at your next doctor visit so levels can be watched." },
+  { a:["levothyroxine"], b:["calcium"],
+    msg:"Calcium blocks thyroid medicine absorption. Keep them at least 4 hours apart." },
+  { a:["amiodarone"], b:["warfarin"],
+    msg:"Amiodarone raises warfarin levels and bleeding risk — this pairing needs closer INR monitoring. Make sure both prescribers know about it." },
+  { a:["amiodarone"], b:["simvastatin","atorvastatin"],
+    msg:"Amiodarone combined with these statins raises the risk of muscle damage. Doctors usually cap the statin dose — worth confirming yours." },
+  { a:["diltiazem"], b:["simvastatin"],
+    msg:"Diltiazem raises simvastatin levels — doses are usually capped together. Double-check with your pharmacist." },
+  { a:["digoxin"], b:["furosemide","hydrochlorothiazide"],
+    msg:"These water pills can lower potassium, and low potassium makes digoxin more toxic. Keep your blood-test appointments and report nausea or vision changes." },
+  { a:["methotrexate"], b:["ibuprofen","naproxen","aspirin81"],
+    msg:"NSAIDs and aspirin can raise methotrexate levels. Please confirm this combination with the doctor who prescribes your methotrexate." },
+  { a:["levofloxacin","doxycycline"], b:["calcium","magnesium","iron"],
+    msg:"Calcium, magnesium, and iron block these antibiotics from absorbing. Keep them at least 2 hours apart from each antibiotic dose." },
+  { a:["gabapentin"], b:["magnesium"],
+    msg:"Magnesium (like antacids) reduces gabapentin absorption — keep them about 2 hours apart." },
+  { a:["diphenhydramine"], b:["trazodone","tramadol","gabapentin","melatonin"],
+    msg:"These medicines all cause drowsiness, and the effects stack. Be careful with evening doses together, and don't drive after taking them." },
+  { a:["spironolactone"], b:["valsartan"],
+    msg:"This combination raises potassium from two directions. Avoid potassium salt substitutes and keep your blood-test appointments." },
 ];
 
 const GENERAL = [

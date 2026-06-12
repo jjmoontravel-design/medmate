@@ -6,7 +6,7 @@ MedMate is a free, privacy-first medication companion. Enter the medications you
 
 ## Features
 
-- **📋 My Medications** — searchable library of 44 common medications (generic + brand names), each with a plain-English "what is this for?" explanation, optional dose strength, and camera **bottle-label scanning** (AI-powered)
+- **📋 My Medications** — searchable library of 62 common medications (generic + brand names), each with a plain-English "what is this for?" explanation, optional dose strength, and camera **bottle-label scanning** (AI-powered)
 - **🌞 My Daily Plan** — timing, food, and lifestyle tips generated from your medication list, plus warnings for well-known risky combinations (e.g. blood thinners + NSAIDs, grapefruit + statins)
 - **⏰ Reminders** — dose reminders with chime + browser notifications, one-tap **"with breakfast / lunch / dinner / bedtime"** scheduling that adjusts when your day shifts, 30-minute snooze, a daily taken/undo checklist, and an optional **caregiver backup** (one-tap text when a dose runs 2+ hours late)
 - **📷 Photo Check** — snap a photo of a food or exercise machine and get an AI verdict (good choice / use caution / better to skip) with approximate calories and medication-specific notes *(requires your own Anthropic API key)*
