@@ -149,7 +149,7 @@
     position: fixed; bottom: 52px; left: 50%; transform: translateX(-50%);
     background: var(--ink); color: #fff; padding: 12px 18px; border-radius: 12px;
     font-size: .95rem; z-index: 60; box-shadow: 0 8px 24px rgba(0,0,0,.25);
-    display: flex; align-items: center; gap: 12px; white-space: nowrap;
+    display: flex; align-items: center; gap: 12px; max-width: 92vw; flex-wrap: wrap;
   }
   .update-toast button {
     background: var(--accent); color: #fff; border: none; border-radius: 8px;
@@ -865,6 +865,8 @@ const GENERAL = [
 let myMeds = JSON.parse(localStorage.getItem("medmate.meds") || "[]");
 const save = () => localStorage.setItem("medmate.meds", JSON.stringify(myMeds));
 const byId = id => MEDS.find(m => m.id === id);
+/* escape user-entered or AI-returned text before inserting into HTML */
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 
 /* user-entered dose strength per med, e.g. "500 mg" */
 let medDoses = JSON.parse(localStorage.getItem("medmate.doses") || "{}");
@@ -873,7 +875,7 @@ function setDose(id, v) {
   if (v) medDoses[id] = v; else delete medDoses[id];
   localStorage.setItem("medmate.doses", JSON.stringify(medDoses));
 }
-const doseLabel = id => medDoses[id] ? ` <span style="font-weight:400;color:var(--ink-soft)">${medDoses[id]}</span>` : "";
+const doseLabel = id => medDoses[id] ? ` <span style="font-weight:400;color:var(--ink-soft)">${esc(medDoses[id])}</span>` : "";
 
 /* ---------------- welcome ---------------- */
 if (!localStorage.getItem("medmate.welcomed")) {
@@ -946,7 +948,7 @@ function renderMeds() {
         <div class="name">${m.name}${doseLabel(id)}</div>
         <div class="cls">${m.brands.join(", ")} · ${m.cls}</div>
         ${WHAT[id] ? `<div class="cls" style="margin-top:3px">💬 ${WHAT[id]}</div>` : ""}
-        <input type="text" value="${medDoses[id] || ""}" placeholder="Strength (e.g. 500 mg) — optional"
+        <input type="text" value="${esc(medDoses[id] || "")}" placeholder="Strength (e.g. 500 mg) — optional"
                onchange="setDose('${id}', this.value); renderMeds()"
                style="margin-top:7px;width:100%;max-width:260px;padding:6px 10px;font-size:.85rem;border:1px solid var(--border);border-radius:8px">
       </div>
@@ -1102,7 +1104,7 @@ function renderCaregiverStatus() {
   const s = document.getElementById("cg-status");
   if (!s) return;
   s.innerHTML = caregiver
-    ? `✅ ${caregiver.name} will be suggested when a dose runs 2+ hours late. <a href="#" onclick="caregiver=null;localStorage.removeItem('medmate.caregiver');renderCaregiverStatus();renderToday();return false">Remove</a>`
+    ? `✅ ${esc(caregiver.name)} will be suggested when a dose runs 2+ hours late. <a href="#" onclick="caregiver=null;localStorage.removeItem('medmate.caregiver');renderCaregiverStatus();renderToday();return false">Remove</a>`
     : "No caregiver set.";
   if (caregiver) { document.getElementById("cg-name").value = caregiver.name; document.getElementById("cg-phone").value = caregiver.phone; }
 }
@@ -1183,7 +1185,7 @@ function renderToday() {
     const sms = `sms:${caregiver.phone.replace(/[^\d+]/g, "")}?&body=` + encodeURIComponent(
       `Hi ${caregiver.name}, this is a MedMate nudge — I haven't marked these as taken yet today: ${list}. Just letting you know!`);
     banner = `<div class="alert">👪 <strong>${list}</strong> — more than 2 hours overdue.
-      <a href="${sms}" style="font-weight:700">📨 Text ${caregiver.name}</a></div>`;
+      <a href="${sms}" style="font-weight:700">📨 Text ${esc(caregiver.name)}</a></div>`;
   }
   box.innerHTML = banner + rows;
 }
@@ -1405,17 +1407,17 @@ function renderPhotoResult(r) {
   out.innerHTML = `
     <div class="card">
       <div class="verdict ${r.verdict}"><span class="icon">${V.icon}</span> ${V.label}</div>
-      <h2 style="margin-bottom:6px">${r.name}</h2>
+      <h2 style="margin-bottom:6px">${esc(r.name)}</h2>
       ${isFood && r.calories && r.calories.toLowerCase() !== "not applicable"
-        ? `<div class="calorie-chip">🔥 ${r.calories}</div>` : ""}
-      <p style="margin-bottom:10px">${r.summary}</p>
+        ? `<div class="calorie-chip">🔥 ${esc(r.calories)}</div>` : ""}
+      <p style="margin-bottom:10px">${esc(r.summary)}</p>
       ${r.medication_notes?.length ? `
         <h2 style="font-size:.98rem">💊 With your medications</h2>
         <ul class="tips">${r.medication_notes.map(n =>
-          `<li class="avoid">${n.note}<span class="src">for ${n.medication}</span></li>`).join("")}</ul>` : ""}
+          `<li class="avoid">${esc(n.note)}<span class="src">for ${esc(n.medication)}</span></li>`).join("")}</ul>` : ""}
       ${r.tips?.length ? `
         <h2 style="font-size:.98rem;margin-top:10px">💡 Tips</h2>
-        <ul class="tips">${r.tips.map(t => `<li class="do">${t}</li>`).join("")}</ul>` : ""}
+        <ul class="tips">${r.tips.map(t => `<li class="do">${esc(t)}</li>`).join("")}</ul>` : ""}
       <p class="muted" style="margin-top:10px">Estimates only — confirm anything important with your pharmacist or doctor.</p>
     </div>`;
 }
@@ -1519,7 +1521,7 @@ function printReport() {
   const rows = myMeds.map(id => {
     const m = byId(id), r = refillStatus(id);
     return `<tr>
-      <td><b>${m.name}</b>${medDoses[id] ? " " + medDoses[id] : ""}<br><span class="small">${m.brands.join(", ")}</span></td>
+      <td><b>${m.name}</b>${medDoses[id] ? " " + esc(medDoses[id]) : ""}<br><span class="small">${m.brands.join(", ")}</span></td>
       <td>${m.cls}${WHAT[id] ? `<br><span class="small">${WHAT[id]}</span>` : ""}</td>
       <td>${(reminders[id] || []).map(fmt12).join(", ") || "—"}</td>
       <td>${r ? r.pills + " (~" + r.daysLeft + " days)" : "—"}</td>
@@ -1684,7 +1686,7 @@ document.getElementById("scan-input").addEventListener("change", e => {
       out.innerHTML = `<div class="card" style="margin-top:12px">
         ${added.length ? `<p>✅ <b>Added:</b> ${added.join(", ")}</p>` : ""}
         ${already.length ? `<p class="muted">Already on your list: ${already.join(", ")}</p>` : ""}
-        ${unknown.length ? `<p class="muted">⚠️ Read "<b>${unknown.join('", "')}</b>" but it isn't in MedMate's library yet — ask your pharmacist about food and timing guidance for it.</p>` : ""}
+        ${unknown.length ? `<p class="muted">⚠️ Read "<b>${unknown.map(esc).join('", "')}</b>" but it isn't in MedMate's library yet — ask your pharmacist about food and timing guidance for it.</p>` : ""}
       </div>`;
     } catch (err) {
       out.innerHTML = `<div class="alert" style="margin-top:12px">⚠️ <strong>Network problem.</strong> Check your connection and try again. (${err.message})</div>`;
