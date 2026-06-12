@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0e7c6b">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>MedMate — Daily Wellness Companion</title>
+<style>
+  :root {
+    --bg: #f4f7fa;
+    --card: #ffffff;
+    --ink: #1e2a36;
+    --ink-soft: #5a6b7b;
+    --accent: #0e7c6b;
+    --accent-soft: #e3f3f0;
+    --warn: #b45309;
+    --warn-soft: #fef3e2;
+    --danger: #b91c1c;
+    --danger-soft: #fdeaea;
+    --good: #166534;
+    --good-soft: #e8f5ec;
+    --border: #dde5ec;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html.font-lg { font-size: 115%; }
+  html.font-xl { font-size: 132%; }
+  .font-btn {
+    flex-shrink: 0; background: rgba(255,255,255,.15); border: 2px solid rgba(255,255,255,.6);
+    color: #fff; font-size: 1.05rem; font-weight: 700; border-radius: 10px;
+    padding: 10px 16px; cursor: pointer;
+  }
+  .font-btn:hover { background: rgba(255,255,255,.28); }
+  body {
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.55;
+    padding-bottom: 90px;
+  }
+  header {
+    background: linear-gradient(135deg, #0e7c6b, #0d5e7c);
+    color: #fff;
+    padding: 22px 20px 18px;
+  }
+  header .wrap { max-width: 860px; margin: 0 auto; }
+  header h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: .3px; }
+  header p { opacity: .92; font-size: .95rem; margin-top: 2px; }
+  .tabs {
+    max-width: 860px; margin: 14px auto 0; display: flex; flex-wrap: wrap; gap: 8px; padding: 0 20px;
+  }
+  .tabs button {
+    flex: 1 1 120px; padding: 12px 8px; font-size: .95rem; font-weight: 600;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--card); color: var(--ink-soft); cursor: pointer; white-space: nowrap;
+  }
+  .tabs button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  main { max-width: 860px; margin: 16px auto; padding: 0 20px; }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 14px;
+  }
+  .card h2 { font-size: 1.08rem; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .muted { color: var(--ink-soft); font-size: .92rem; }
+  /* search */
+  .search-row { display: flex; gap: 8px; position: relative; }
+  .search-row input {
+    flex: 1; padding: 12px 14px; font-size: 1rem;
+    border: 1px solid var(--border); border-radius: 10px; outline-color: var(--accent);
+  }
+  .suggest {
+    position: absolute; top: 50px; left: 0; right: 0; z-index: 20;
+    background: #fff; border: 1px solid var(--border); border-radius: 10px;
+    max-height: 260px; overflow-y: auto; box-shadow: 0 8px 24px rgba(20,40,60,.12);
+  }
+  .suggest div { padding: 11px 14px; cursor: pointer; }
+  .suggest div:hover, .suggest div.hl { background: var(--accent-soft); }
+  .suggest .cls { color: var(--ink-soft); font-size: .85rem; }
+  /* med list */
+  .med {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+    padding: 13px 0; border-bottom: 1px solid var(--border);
+  }
+  .med:last-child { border-bottom: none; }
+  .med .name { font-weight: 600; font-size: 1.02rem; }
+  .med .cls { color: var(--ink-soft); font-size: .88rem; }
+  .med button {
+    background: none; border: 1px solid var(--border); color: var(--danger);
+    border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: .88rem; flex-shrink: 0;
+  }
+  .med button:hover { background: var(--danger-soft); }
+  .empty { text-align: center; padding: 28px 10px; color: var(--ink-soft); }
+  .empty .big { font-size: 2rem; }
+  /* plan */
+  .pill {
+    display: inline-block; padding: 2px 10px; border-radius: 999px;
+    font-size: .8rem; font-weight: 600; vertical-align: middle;
+  }
+  .pill.warn { background: var(--warn-soft); color: var(--warn); }
+  .pill.good { background: var(--good-soft); color: var(--good); }
+  .pill.info { background: var(--accent-soft); color: var(--accent); }
+  ul.tips { list-style: none; }
+  ul.tips li {
+    padding: 9px 0 9px 30px; position: relative; border-bottom: 1px dashed var(--border);
+    font-size: .97rem;
+  }
+  ul.tips li:last-child { border-bottom: none; }
+  ul.tips li::before { position: absolute; left: 2px; top: 9px; }
+  ul.tips li.do::before { content: "✅"; }
+  ul.tips li.avoid::before { content: "⚠️"; }
+  ul.tips li.eat::before { content: "🥗"; }
+  ul.tips li.time::before { content: "⏰"; }
+  ul.tips li .src { display: block; color: var(--ink-soft); font-size: .84rem; }
+  .alert {
+    background: var(--warn-soft); border: 1px solid #f0d9b5;
+    border-radius: var(--radius); padding: 14px 16px; margin-bottom: 14px;
+  }
+  .alert strong { color: var(--warn); }
+  .disclaimer {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: #243240; color: #d8e2ec; font-size: .82rem;
+    padding: 10px 20px; text-align: center; z-index: 30;
+  }
+  .disclaimer b { color: #ffd28a; }
+  /* welcome modal */
+  .modal-back {
+    position: fixed; inset: 0; background: rgba(15,25,35,.55); z-index: 50;
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal {
+    background: #fff; border-radius: var(--radius); max-width: 520px; padding: 26px 28px;
+  }
+  .modal h2 { margin-bottom: 10px; }
+  .modal ul { margin: 10px 0 16px 20px; }
+  .modal li { margin-bottom: 6px; font-size: .95rem; }
+  .modal button {
+    width: 100%; padding: 13px; font-size: 1rem; font-weight: 600;
+    background: var(--accent); color: #fff; border: none; border-radius: 10px; cursor: pointer;
+  }
+  .hidden { display: none !important; }
+  /* reminders */
+  .btn-small {
+    padding: 6px 14px; font-size: .88rem; font-weight: 600;
+    background: var(--accent); color: #fff; border: none; border-radius: 8px; cursor: pointer;
+  }
+  .btn-small.ghost { background: none; border: 1px solid var(--border); color: var(--ink-soft); }
+  .rem-row { padding: 13px 0; border-bottom: 1px solid var(--border); }
+  .rem-row:last-child { border-bottom: none; }
+  .rem-row .name { font-weight: 600; margin-bottom: 6px; }
+  .rem-row .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .rem-row input[type="time"] {
+    padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: .95rem;
+  }
+  .time-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--accent-soft); color: var(--accent); font-weight: 600;
+    padding: 5px 6px 5px 12px; border-radius: 999px; font-size: .9rem;
+  }
+  .time-pill button {
+    background: none; border: none; color: var(--accent); cursor: pointer;
+    font-size: 1rem; line-height: 1; padding: 0 4px;
+  }
+  .today-item {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 11px 12px; border-radius: 10px; margin-bottom: 8px;
+    border: 1px solid var(--border); background: #fbfdfe;
+  }
+  .today-item:last-child { margin-bottom: 0; }
+  .today-item.due { background: var(--warn-soft); border-color: #f0d9b5; }
+  .today-item.taken { background: var(--good-soft); border-color: #cde8d5; opacity: .8; }
+  .today-item .t { font-weight: 700; font-variant-numeric: tabular-nums; min-width: 64px; }
+  .today-item .status { font-size: .85rem; font-weight: 600; }
+  .today-item.due .status { color: var(--warn); }
+  .today-item.taken .status { color: var(--good); }
+  .today-item.upcoming .status { color: var(--ink-soft); }
+  /* photo check */
+  .photo-drop {
+    display: block; border: 2px dashed var(--border); border-radius: var(--radius);
+    padding: 18px; text-align: center; cursor: pointer; color: var(--ink-soft);
+    transition: border-color .15s;
+  }
+  .photo-drop:hover { border-color: var(--accent); }
+  .photo-drop img { max-width: 100%; max-height: 320px; border-radius: 10px; }
+  .verdict {
+    display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+    border-radius: var(--radius); margin-bottom: 12px; font-size: 1.05rem; font-weight: 700;
+  }
+  .verdict.recommended { background: var(--good-soft); color: var(--good); }
+  .verdict.caution { background: var(--warn-soft); color: var(--warn); }
+  .verdict.not_recommended { background: var(--danger-soft); color: var(--danger); }
+  .verdict .icon { font-size: 1.6rem; }
+  .calorie-chip {
+    display: inline-block; background: var(--accent-soft); color: var(--accent);
+    font-weight: 700; padding: 6px 14px; border-radius: 999px; margin-bottom: 10px;
+  }
+  /* report tab */
+  .adh-big { font-size: 2.6rem; font-weight: 800; color: var(--accent); line-height: 1.1; }
+  .heatmap { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+  .heatmap .cell {
+    aspect-ratio: 1; border-radius: 7px; background: #e8edf2;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .66rem; color: var(--ink-soft);
+  }
+  .heatmap .cell.full { background: var(--accent); color: #fff; }
+  .heatmap .cell.part { background: #8fd0c4; color: #15463e; }
+  .heatmap .cell.miss { background: #f3c5c5; color: #7a2727; }
+  .hm-key {
+    display: inline-block; width: 13px; height: 13px; border-radius: 4px;
+    background: #e8edf2; vertical-align: -2px;
+  }
+  .hm-key.full { background: var(--accent); }
+  .hm-key.part { background: #8fd0c4; }
+  .hm-key.miss { background: #f3c5c5; }
+  .refill-chip {
+    display: inline-block; padding: 3px 12px; border-radius: 999px;
+    font-size: .85rem; font-weight: 700; background: var(--accent-soft); color: var(--accent);
+  }
+  .refill-chip.low { background: var(--danger-soft); color: var(--danger); }
+  .refill-row input[type="number"] {
+    width: 110px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: .95rem;
+  }
+  /* doctor report print view */
+  #print-report { display: none; }
+  @media print {
+    body > *:not(#print-report) { display: none !important; }
+    body { padding: 0; background: #fff; }
+    #print-report { display: block; font-size: 12pt; color: #000; }
+    #print-report h1 { font-size: 16pt; margin-bottom: 2pt; }
+    #print-report h2 { font-size: 13pt; margin: 14pt 0 6pt; }
+    #print-report table { width: 100%; border-collapse: collapse; }
+    #print-report th, #print-report td { border: 1px solid #999; padding: 5pt 7pt; text-align: left; font-size: 10.5pt; }
+    #print-report th { background: #eee; }
+    #print-report .small { font-size: 9pt; color: #444; }
+  }
+  .spinner {
+    display: inline-block; width: 18px; height: 18px; vertical-align: middle;
+    border: 3px solid var(--accent-soft); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin .8s linear infinite; margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (max-width: 560px) {
+    header h1 { font-size: 1.25rem; }
+    main, .tabs { padding: 0 12px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+    <div>
+      <h1>💊 MedMate</h1>
+      <p>Daily food &amp; lifestyle guidance based on the medications you take</p>
+    </div>
+    <button id="font-btn" class="font-btn" onclick="cycleFont()" title="Change text size">Aa</button>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button id="tab-meds" class="active" onclick="showTab('meds')">My Medications</button>
+  <button id="tab-plan" onclick="showTab('plan')">My Daily Plan</button>
+  <button id="tab-rem" onclick="showTab('rem')">⏰ Reminders</button>
+  <button id="tab-photo" onclick="showTab('photo')">📷 Photo Check</button>
+  <button id="tab-report" onclick="showTab('report')">📈 Report</button>
+</nav>
+
+<main>
+  <!-- MEDICATIONS TAB -->
+  <section id="view-meds">
+    <div class="card">
+      <h2>➕ Add a medication</h2>
+      <p class="muted" style="margin-bottom:10px">Start typing a medication name (brand or generic).</p>
+      <div class="search-row">
+        <input id="search" type="text" placeholder="e.g. metformin, Lipitor, levothyroxine…" autocomplete="off">
+        <div id="suggest" class="suggest hidden"></div>
+      </div>
+      <p class="muted" style="margin:12px 0 8px;text-align:center">— or skip the typing —</p>
+      <button class="btn-small" style="width:100%;padding:13px;font-size:1rem" onclick="document.getElementById('scan-input').click()">
+        📷 Scan the bottle label with your camera
+      </button>
+      <input id="scan-input" type="file" accept="image/*" capture="environment" class="hidden">
+      <div id="scan-result"></div>
+    </div>
+    <div class="card">
+      <h2>📋 Your medications</h2>
+      <div id="medlist"></div>
+    </div>
+  </section>
+
+  <!-- PLAN TAB -->
+  <section id="view-plan" class="hidden">
+    <div id="plan-out"></div>
+  </section>
+
+  <!-- REMINDERS TAB -->
+  <section id="view-rem" class="hidden">
+    <div id="notif-banner" class="alert hidden">
+      🔔 <strong>Turn on notifications</strong> so MedMate can alert you even when this tab is in the background.
+      <button class="btn-small" style="margin-left:8px" onclick="askNotif()">Enable notifications</button>
+    </div>
+    <div class="card">
+      <h2>📅 Today's doses</h2>
+      <div id="today-list"></div>
+    </div>
+    <div class="card">
+      <h2>🕰️ Your day</h2>
+      <p class="muted" style="margin-bottom:10px">Tell MedMate when your meals usually happen. Then you can add reminders like "with breakfast" in one tap — and if breakfast runs late, just change the time here.</p>
+      <div id="meal-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px"></div>
+    </div>
+    <div class="card">
+      <h2>⏰ Reminder times</h2>
+      <p class="muted" style="margin-bottom:8px">Tap a meal button for "take with food" medicines, or pick an exact time — whatever matches your prescription label.</p>
+      <div id="rem-list"></div>
+    </div>
+    <div class="card">
+      <h2>👪 Caregiver backup</h2>
+      <p class="muted" style="margin-bottom:10px">If a dose is more than 2 hours overdue, MedMate prepares a one-tap text message to someone you trust — you stay in control of sending it.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input id="cg-name" type="text" placeholder="Their name (e.g. Sarah)" style="flex:1;min-width:130px;padding:10px 12px;border:1px solid var(--border);border-radius:10px">
+        <input id="cg-phone" type="tel" placeholder="Mobile number" style="flex:1;min-width:130px;padding:10px 12px;border:1px solid var(--border);border-radius:10px">
+        <button class="btn-small" onclick="saveCaregiver()">Save</button>
+      </div>
+      <p id="cg-status" class="muted" style="margin-top:8px"></p>
+    </div>
+    <div class="card">
+      <p class="muted">ℹ️ Reminders ring (chime + notification) while MedMate is open in a browser tab — keep the tab open, or pin it. When a dose comes due, mark it taken so you never double-dose.</p>
+    </div>
+  </section>
+
+  <!-- PHOTO CHECK TAB -->
+  <section id="view-photo" class="hidden">
+    <div class="card" id="key-card">
+      <h2>🔑 One-time setup</h2>
+      <p class="muted" style="margin-bottom:10px">
+        Photo Check uses Claude AI to look at your photo. It needs an Anthropic API key —
+        get one at <b>console.anthropic.com</b>. The key is stored only in this browser and is sent
+        only to Anthropic, never anywhere else.
+      </p>
+      <div class="search-row">
+        <input id="api-key" type="password" placeholder="sk-ant-..." autocomplete="off">
+        <button class="btn-small" onclick="saveKey()">Save key</button>
+      </div>
+      <p class="muted hidden" id="key-status" style="margin-top:8px"></p>
+    </div>
+
+    <div class="card">
+      <h2>📷 Snap or upload a photo</h2>
+      <p class="muted" style="margin-bottom:10px">
+        Take a picture of a <b>food / drink</b> or an <b>exercise machine</b>. MedMate will tell you whether
+        it's a good fit alongside your medications, with an approximate calorie count for food.
+      </p>
+      <label class="photo-drop" for="photo-input">
+        <input id="photo-input" type="file" accept="image/*" capture="environment" class="hidden">
+        <div id="photo-placeholder">
+          <div class="big" style="font-size:2.2rem">📸</div>
+          Tap to take a photo or choose one from your device
+        </div>
+        <img id="photo-preview" class="hidden" alt="Your photo">
+      </label>
+      <button id="analyze-btn" class="btn-small hidden" style="width:100%;padding:13px;font-size:1rem;margin-top:12px" onclick="analyzePhoto()">
+        ✨ Check this for me
+      </button>
+    </div>
+
+    <div id="photo-result"></div>
+
+    <div class="card">
+      <p class="muted">⚠️ Calorie counts are rough visual estimates and recommendations are general wellness guidance —
+      they can be wrong. This is not medical or dietary advice; ask your doctor, pharmacist, or a dietitian for decisions that matter.</p>
+    </div>
+  </section>
+
+  <!-- REPORT TAB -->
+  <section id="view-report" class="hidden">
+    <div id="refill-alerts"></div>
+
+    <div class="card">
+      <h2>📈 Your adherence — last 30 days</h2>
+      <div id="adherence-box"></div>
+    </div>
+
+    <div class="card">
+      <h2>📅 Last 5 weeks at a glance</h2>
+      <div id="heatmap" class="heatmap"></div>
+      <p class="muted" style="margin-top:10px">
+        <span class="hm-key full"></span> all doses taken &nbsp;
+        <span class="hm-key part"></span> some taken &nbsp;
+        <span class="hm-key miss"></span> missed &nbsp;
+        <span class="hm-key"></span> no data
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>💊 Refill tracker</h2>
+      <p class="muted" style="margin-bottom:8px">Tell MedMate how many pills are in each bottle. Every dose you mark taken counts one down, and you'll get a warning when a refill is about a week away.</p>
+      <div id="refill-list"></div>
+    </div>
+
+    <div class="card">
+      <h2>🖨️ Doctor visit report</h2>
+      <p class="muted" style="margin-bottom:10px">A one-page summary of your medications, schedule, and 30-day adherence — print it or save as PDF and bring it to your next appointment.</p>
+      <button class="btn-small" style="width:100%;padding:13px;font-size:1rem" onclick="printReport()">🖨️ Print / save as PDF</button>
+    </div>
+
+    <div class="card">
+      <h2>💾 Backup &amp; restore</h2>
+      <p class="muted" style="margin-bottom:10px">Your data lives only on this device. Download a backup file to keep it safe or move it to a new phone. (Your API key is never included.)</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-small" onclick="exportData()">⬇️ Download backup</button>
+        <button class="btn-small ghost" onclick="document.getElementById('import-file').click()">⬆️ Restore from backup</button>
+        <input id="import-file" type="file" accept="application/json" class="hidden" onchange="importData(event)">
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="print-report"></div>
+
+<div class="disclaimer">
+  <b>Not medical advice.</b> MedMate offers general wellness and educational information only.
+  Always follow your prescription label and ask your doctor or pharmacist before changing anything.
+</div>
+
+<!-- first-run modal -->
+<div id="welcome" class="modal-back hidden">
+  <div class="modal">
+    <h2>👋 Welcome to MedMate</h2>
+    <p>Before you start, a few important things:</p>
+    <ul>
+      <li><b>This is not medical advice.</b> MedMate shares general, educational wellness tips associated with common medications.</li>
+      <li><b>It does not replace your doctor or pharmacist.</b> Never start, stop, or change a medication based on this app.</li>
+      <li><b>Your data stays on this device.</b> Your medication list is stored only in this browser and is never sent anywhere.</li>
+      <li>If you notice side effects or feel unwell, contact a healthcare professional.</li>
+    </ul>
+    <button onclick="acceptWelcome()">I understand — let's go</button>
+  </div>
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+   Knowledge base: general, widely published food/lifestyle guidance
+   for common medications. Educational only — not medical advice.
+   tips: t = type (time | eat | avoid | do), x = text
+------------------------------------------------------------------- */
+const MEDS = [
+  { id:"levothyroxine", name:"Levothyroxine", brands:["Synthroid","Euthyrox","Levoxyl"], cls:"Thyroid hormone", tips:[
+    {t:"time", x:"Usually taken on an empty stomach, 30–60 minutes before breakfast, with plain water."},
+    {t:"avoid", x:"Wait 30–60 minutes after taking it before drinking coffee — coffee can reduce absorption."},
+    {t:"avoid", x:"Keep calcium or iron supplements and antacids at least 4 hours apart from this medication."},
+    {t:"do", x:"Take it at the same time every day for steady levels."} ]},
+  { id:"metformin", name:"Metformin", brands:["Glucophage","Fortamet"], cls:"Diabetes (type 2)", tips:[
+    {t:"time", x:"Often taken with meals to reduce stomach upset — follow your label."},
+    {t:"eat", x:"Favor steady, balanced meals with fiber (vegetables, whole grains, legumes) to support stable blood sugar."},
+    {t:"avoid", x:"Limit alcohol — heavy drinking with metformin raises the risk of a rare but serious side effect (lactic acidosis)."},
+    {t:"do", x:"Long-term use can lower vitamin B12 — it's reasonable to ask your doctor about checking B12 levels."} ]},
+  { id:"atorvastatin", name:"Atorvastatin", brands:["Lipitor"], cls:"Cholesterol (statin)", tips:[
+    {t:"avoid", x:"Large amounts of grapefruit or grapefruit juice can raise statin levels — ask your pharmacist how much is OK."},
+    {t:"eat", x:"A heart-healthy pattern (vegetables, fruit, fish, olive oil, nuts) supports what this medicine is doing."},
+    {t:"do", x:"Tell your doctor about unexplained muscle pain or weakness."},
+    {t:"do", x:"Regular light exercise such as a daily 20–30 minute walk complements cholesterol treatment."} ]},
+  { id:"simvastatin", name:"Simvastatin", brands:["Zocor"], cls:"Cholesterol (statin)", tips:[
+    {t:"time", x:"Usually taken in the evening — cholesterol production is highest at night."},
+    {t:"avoid", x:"Avoid grapefruit and grapefruit juice — the interaction with simvastatin is significant."},
+    {t:"do", x:"Tell your doctor about unexplained muscle pain or weakness."},
+    {t:"eat", x:"A heart-healthy diet (vegetables, fish, whole grains) supports treatment."} ]},
+  { id:"lisinopril", name:"Lisinopril", brands:["Zestril","Prinivil"], cls:"Blood pressure (ACE inhibitor)", tips:[
+    {t:"avoid", x:"Avoid salt substitutes containing potassium chloride unless your doctor approves — this medicine raises potassium."},
+    {t:"avoid", x:"Be cautious with regular use of ibuprofen/naproxen (NSAIDs) — they can blunt this medicine and strain kidneys. Ask your pharmacist."},
+    {t:"eat", x:"A lower-sodium diet (cook fresh, watch processed foods) helps blood pressure medicines work better."},
+    {t:"do", x:"A persistent dry cough is a known side effect — mention it to your doctor if it bothers you."} ]},
+  { id:"losartan", name:"Losartan", brands:["Cozaar"], cls:"Blood pressure (ARB)", tips:[
+    {t:"avoid", x:"Avoid potassium-based salt substitutes unless your doctor approves."},
+    {t:"eat", x:"Favor a lower-sodium eating pattern; the DASH diet is a well-studied companion to blood pressure treatment."},
+    {t:"do", x:"Stand up slowly at first if you feel light-headed, especially when starting treatment."} ]},
+  { id:"amlodipine", name:"Amlodipine", brands:["Norvasc"], cls:"Blood pressure (calcium-channel blocker)", tips:[
+    {t:"avoid", x:"Large amounts of grapefruit juice may modestly increase levels — moderation is wise; ask your pharmacist."},
+    {t:"eat", x:"Lower-sodium meals help blood pressure medicines work better."},
+    {t:"do", x:"Mild ankle swelling can occur — raise your legs when resting and mention it to your doctor if it persists."} ]},
+  { id:"metoprolol", name:"Metoprolol", brands:["Lopressor","Toprol-XL"], cls:"Blood pressure / heart (beta-blocker)", tips:[
+    {t:"time", x:"Take it consistently with or right after the same meal each day (food affects absorption of the regular form)."},
+    {t:"avoid", x:"Never stop a beta-blocker suddenly — talk to your doctor first."},
+    {t:"do", x:"Stand up slowly if you feel dizzy."},
+    {t:"avoid", x:"Limit alcohol, which can add to dizziness and lower blood pressure further."} ]},
+  { id:"hydrochlorothiazide", name:"Hydrochlorothiazide (HCTZ)", brands:["Microzide"], cls:"Blood pressure (diuretic)", tips:[
+    {t:"time", x:"Best taken in the morning so bathroom trips don't disturb your sleep."},
+    {t:"eat", x:"Diuretics can lower potassium — potassium-rich foods (banana, orange, potato, spinach) may help; confirm with your doctor."},
+    {t:"do", x:"Use sun protection — this medicine can make skin more sun-sensitive."},
+    {t:"do", x:"Stay normally hydrated; tell your doctor if you have prolonged vomiting or diarrhea while on a diuretic."} ]},
+  { id:"furosemide", name:"Furosemide", brands:["Lasix"], cls:"Diuretic (water pill)", tips:[
+    {t:"time", x:"Usually taken in the morning (and early afternoon if twice daily) to avoid nighttime bathroom trips."},
+    {t:"eat", x:"This diuretic can lower potassium — ask your doctor whether potassium-rich foods or a supplement are right for you."},
+    {t:"do", x:"Follow any fluid-intake instructions from your doctor exactly — they vary by condition."},
+    {t:"do", x:"Stand up slowly; dizziness on standing is common."} ]},
+  { id:"omeprazole", name:"Omeprazole", brands:["Prilosec"], cls:"Acid reducer (PPI)", tips:[
+    {t:"time", x:"Works best taken 30–60 minutes before your first meal of the day."},
+    {t:"avoid", x:"Limit trigger foods for reflux: very fatty or fried meals, late-night eating, excess coffee and alcohol."},
+    {t:"do", x:"On long-term use, your doctor may want to keep an eye on vitamin B12 and magnesium."},
+    {t:"do", x:"Finishing dinner 2–3 hours before lying down helps reflux symptoms."} ]},
+  { id:"sertraline", name:"Sertraline", brands:["Zoloft"], cls:"Antidepressant (SSRI)", tips:[
+    {t:"time", x:"Take at the same time daily; if it disturbs sleep, morning dosing often helps — ask your prescriber."},
+    {t:"eat", x:"Taking it with food can ease nausea, which is common in the first weeks."},
+    {t:"avoid", x:"Avoid St. John's Wort and limit alcohol while on an SSRI."},
+    {t:"avoid", x:"Regular NSAID use (ibuprofen, naproxen) with an SSRI slightly raises bleeding risk — ask your pharmacist."},
+    {t:"avoid", x:"Don't stop suddenly — taper with your prescriber's guidance."} ]},
+  { id:"escitalopram", name:"Escitalopram", brands:["Lexapro"], cls:"Antidepressant (SSRI)", tips:[
+    {t:"time", x:"Take at the same time daily, with or without food."},
+    {t:"avoid", x:"Avoid St. John's Wort and limit alcohol while on an SSRI."},
+    {t:"avoid", x:"Regular NSAID use with an SSRI slightly raises bleeding risk — ask your pharmacist."},
+    {t:"avoid", x:"Don't stop suddenly — taper with your prescriber's guidance."} ]},
+  { id:"warfarin", name:"Warfarin", brands:["Coumadin","Jantoven"], cls:"Blood thinner", tips:[
+    {t:"eat", x:"Keep your vitamin K intake consistent — you can eat leafy greens, but eat a similar amount week to week rather than big swings."},
+    {t:"avoid", x:"Check before adding cranberry juice in quantity, grapefruit, or any new supplement — many interact with warfarin."},
+    {t:"avoid", x:"Avoid ibuprofen/naproxen and limit alcohol — both raise bleeding risk. Ask your doctor about safe pain relief."},
+    {t:"do", x:"Keep every INR blood-test appointment — that's how your dose stays safe."} ]},
+  { id:"aspirin81", name:"Aspirin (low-dose)", brands:["Baby aspirin"], cls:"Blood thinner (antiplatelet)", tips:[
+    {t:"time", x:"Take it with food or a full glass of water to be gentler on the stomach."},
+    {t:"avoid", x:"Limit alcohol — it adds to stomach-bleeding risk."},
+    {t:"avoid", x:"Check with a pharmacist before regularly combining with ibuprofen or naproxen."} ]},
+  { id:"ibuprofen", name:"Ibuprofen", brands:["Advil","Motrin"], cls:"Pain/inflammation (NSAID)", tips:[
+    {t:"time", x:"Take with food or milk to protect your stomach."},
+    {t:"do", x:"Stay well hydrated — NSAIDs are harder on kidneys when you're dehydrated."},
+    {t:"avoid", x:"Don't combine with other NSAIDs (naproxen, high-dose aspirin) without professional advice."},
+    {t:"avoid", x:"Limit alcohol — it adds to stomach-bleeding risk."},
+    {t:"do", x:"Use the lowest dose for the shortest time that works."} ]},
+  { id:"naproxen", name:"Naproxen", brands:["Aleve","Naprosyn"], cls:"Pain/inflammation (NSAID)", tips:[
+    {t:"time", x:"Take with food or milk to protect your stomach."},
+    {t:"do", x:"Stay well hydrated — NSAIDs are harder on kidneys when you're dehydrated."},
+    {t:"avoid", x:"Don't combine with other NSAIDs without professional advice."},
+    {t:"avoid", x:"Limit alcohol — it adds to stomach-bleeding risk."} ]},
+  { id:"gabapentin", name:"Gabapentin", brands:["Neurontin"], cls:"Nerve pain / seizures", tips:[
+    {t:"avoid", x:"Separate aluminum/magnesium antacids (like Maalox) by at least 2 hours — they reduce absorption."},
+    {t:"do", x:"It can cause drowsiness — see how it affects you before driving."},
+    {t:"avoid", x:"Avoid alcohol, which adds to drowsiness and dizziness."} ]},
+  { id:"prednisone", name:"Prednisone", brands:["Deltasone"], cls:"Steroid (anti-inflammatory)", tips:[
+    {t:"time", x:"Usually taken in the morning with food — this mirrors your body's natural rhythm and protects sleep and stomach."},
+    {t:"avoid", x:"Go easy on salt and added sugar — steroids promote fluid retention and raise blood sugar."},
+    {t:"eat", x:"Calcium- and vitamin-D-rich foods help protect bones during longer courses — ask your doctor about supplements."},
+    {t:"avoid", x:"Never stop a longer steroid course abruptly — doses are tapered."} ]},
+  { id:"levofloxacin", name:"Levofloxacin", brands:["Levaquin"], cls:"Antibiotic (fluoroquinolone)", tips:[
+    {t:"avoid", x:"Keep dairy, calcium, iron, zinc, and antacids at least 2 hours away from each dose — they block absorption."},
+    {t:"do", x:"Drink plenty of fluids and use sun protection (sun-sensitivity is common)."},
+    {t:"do", x:"Stop and call your doctor if you get tendon pain or swelling — a rare but known risk of this class."},
+    {t:"do", x:"Finish the full course unless your doctor says otherwise."} ]},
+  { id:"doxycycline", name:"Doxycycline", brands:["Vibramycin"], cls:"Antibiotic (tetracycline)", tips:[
+    {t:"time", x:"Take with a full glass of water and stay upright for 30 minutes — it can irritate the food pipe."},
+    {t:"avoid", x:"Keep dairy, calcium, iron, and antacids 1–2 hours away from each dose."},
+    {t:"do", x:"Use sun protection — this antibiotic makes skin burn more easily."},
+    {t:"do", x:"Finish the full course unless your doctor says otherwise."} ]},
+  { id:"amoxicillin", name:"Amoxicillin", brands:["Amoxil"], cls:"Antibiotic (penicillin)", tips:[
+    {t:"time", x:"Can be taken with or without food; with food helps if it upsets your stomach."},
+    {t:"do", x:"Space doses evenly through the day and finish the full course."},
+    {t:"eat", x:"Plain yogurt or other probiotic foods may help with antibiotic-related stomach upset."} ]},
+  { id:"insulin", name:"Insulin (any type)", brands:["Lantus","Humalog","Novolog","Levemir"], cls:"Diabetes", tips:[
+    {t:"eat", x:"Keep meal timing and carbohydrate amounts consistent — big swings make dosing harder."},
+    {t:"do", x:"Carry a fast-acting sugar (glucose tabs, juice) in case of low blood sugar."},
+    {t:"do", x:"Know your low-blood-sugar signs: shakiness, sweating, confusion, sudden hunger."},
+    {t:"avoid", x:"Alcohol can cause delayed lows — if you drink, do so with food and check your sugar."} ]},
+  { id:"alendronate", name:"Alendronate", brands:["Fosamax"], cls:"Bone strength (bisphosphonate)", tips:[
+    {t:"time", x:"Take first thing in the morning on an empty stomach with a full glass of plain water only."},
+    {t:"time", x:"Stay fully upright and have nothing else (no food, drink, or other pills) for at least 30 minutes after."},
+    {t:"eat", x:"Later in the day, calcium- and vitamin-D-rich foods support bone health."} ]},
+  { id:"montelukast", name:"Montelukast", brands:["Singulair"], cls:"Asthma / allergies", tips:[
+    {t:"time", x:"Usually taken in the evening."},
+    {t:"do", x:"Tell your doctor about any new mood changes — a known, monitored side effect."} ]},
+  { id:"citalopram", name:"Citalopram", brands:["Celexa"], cls:"Antidepressant (SSRI)", tips:[
+    {t:"time", x:"Take at the same time daily, with or without food."},
+    {t:"avoid", x:"Avoid St. John's Wort and limit alcohol while on an SSRI."},
+    {t:"avoid", x:"Regular NSAID use with an SSRI slightly raises bleeding risk — ask your pharmacist."},
+    {t:"avoid", x:"Don't stop suddenly — taper with your prescriber's guidance."} ]},
+  { id:"pantoprazole", name:"Pantoprazole", brands:["Protonix"], cls:"Acid reducer (PPI)", tips:[
+    {t:"time", x:"Works best taken 30–60 minutes before a meal, usually breakfast."},
+    {t:"avoid", x:"Limit reflux triggers: very fatty or fried meals, late-night eating, excess coffee and alcohol."},
+    {t:"do", x:"Finishing dinner 2–3 hours before lying down helps reflux symptoms."} ]},
+  { id:"rosuvastatin", name:"Rosuvastatin", brands:["Crestor"], cls:"Cholesterol (statin)", tips:[
+    {t:"time", x:"Can be taken any time of day — same time daily is what matters."},
+    {t:"eat", x:"A heart-healthy pattern (vegetables, fruit, fish, olive oil, nuts) supports what this medicine is doing."},
+    {t:"do", x:"Tell your doctor about unexplained muscle pain or weakness."},
+    {t:"do", x:"Regular light exercise such as a daily 20–30 minute walk complements cholesterol treatment."} ]},
+  { id:"clopidogrel", name:"Clopidogrel", brands:["Plavix"], cls:"Blood thinner (antiplatelet)", tips:[
+    {t:"avoid", x:"Check with a pharmacist before regular ibuprofen/naproxen use — extra bleeding risk."},
+    {t:"avoid", x:"Limit alcohol, which adds to stomach-bleeding risk."},
+    {t:"do", x:"Never stop before a dental visit or surgery without asking the doctor who prescribed it."},
+    {t:"do", x:"Tell your doctor about unusual bruising or bleeding that won't stop."} ]},
+  { id:"apixaban", name:"Apixaban", brands:["Eliquis"], cls:"Blood thinner (anticoagulant)", tips:[
+    {t:"time", x:"Usually taken twice daily, about 12 hours apart — consistency matters."},
+    {t:"avoid", x:"Avoid ibuprofen/naproxen and St. John's Wort; limit alcohol — all raise bleeding risk."},
+    {t:"do", x:"Tell every doctor and dentist you see that you take a blood thinner."},
+    {t:"do", x:"Don't skip or double doses — if unsure what to do about a missed dose, call your pharmacist."} ]},
+  { id:"atenolol", name:"Atenolol", brands:["Tenormin"], cls:"Blood pressure / heart (beta-blocker)", tips:[
+    {t:"time", x:"Take at the same time every day."},
+    {t:"avoid", x:"Never stop a beta-blocker suddenly — talk to your doctor first."},
+    {t:"avoid", x:"Limit alcohol, which can add to dizziness."},
+    {t:"do", x:"Stand up slowly if you feel light-headed."} ]},
+  { id:"carvedilol", name:"Carvedilol", brands:["Coreg"], cls:"Blood pressure / heart (beta-blocker)", tips:[
+    {t:"time", x:"Take with food — it reduces dizziness by slowing absorption."},
+    {t:"avoid", x:"Never stop a beta-blocker suddenly — talk to your doctor first."},
+    {t:"do", x:"Stand up slowly, especially in the first weeks."} ]},
+  { id:"spironolactone", name:"Spironolactone", brands:["Aldactone"], cls:"Diuretic (potassium-sparing)", tips:[
+    {t:"avoid", x:"Avoid potassium-based salt substitutes and big potassium loads — this medicine already raises potassium."},
+    {t:"time", x:"Morning dosing helps avoid nighttime bathroom trips."},
+    {t:"do", x:"Taking it with food can reduce stomach upset."} ]},
+  { id:"glipizide", name:"Glipizide", brands:["Glucotrol"], cls:"Diabetes (type 2)", tips:[
+    {t:"time", x:"Usually taken about 30 minutes before breakfast."},
+    {t:"eat", x:"Don't skip meals after taking it — that's the main cause of low blood sugar on this medicine."},
+    {t:"avoid", x:"Limit alcohol — it can hide and worsen low blood sugar."},
+    {t:"do", x:"Know your low-blood-sugar signs: shakiness, sweating, confusion, sudden hunger."} ]},
+  { id:"sitagliptin", name:"Sitagliptin", brands:["Januvia"], cls:"Diabetes (type 2)", tips:[
+    {t:"time", x:"Once daily, with or without food."},
+    {t:"eat", x:"Steady, balanced meals with fiber support stable blood sugar."},
+    {t:"do", x:"Call your doctor for severe, persistent stomach pain — a rare but known side effect."} ]},
+  { id:"fluoxetine", name:"Fluoxetine", brands:["Prozac"], cls:"Antidepressant (SSRI)", tips:[
+    {t:"time", x:"Morning dosing usually works best — it can be energizing and disturb sleep if taken late."},
+    {t:"avoid", x:"Avoid St. John's Wort and limit alcohol while on an SSRI."},
+    {t:"avoid", x:"Regular NSAID use with an SSRI slightly raises bleeding risk — ask your pharmacist."},
+    {t:"avoid", x:"Don't stop suddenly — taper with your prescriber's guidance."} ]},
+  { id:"duloxetine", name:"Duloxetine", brands:["Cymbalta"], cls:"Antidepressant (SNRI)", tips:[
+    {t:"time", x:"Taking it with food can ease nausea, common in the first weeks."},
+    {t:"avoid", x:"Limit alcohol — the combination is harder on the liver."},
+    {t:"avoid", x:"Don't stop suddenly — taper with your prescriber's guidance."},
+    {t:"do", x:"Stand up slowly if you feel light-headed."} ]},
+  { id:"trazodone", name:"Trazodone", brands:["Desyrel"], cls:"Sleep / antidepressant", tips:[
+    {t:"time", x:"Usually taken at bedtime, shortly before sleep."},
+    {t:"avoid", x:"No driving after taking it — drowsiness is the point and it lingers."},
+    {t:"avoid", x:"Avoid alcohol, which multiplies the drowsiness."} ]},
+  { id:"tramadol", name:"Tramadol", brands:["Ultram"], cls:"Pain (opioid-like)", tips:[
+    {t:"avoid", x:"Avoid alcohol and other sedating medicines — the combination can dangerously slow breathing."},
+    {t:"do", x:"It can cause drowsiness — see how it affects you before driving."},
+    {t:"eat", x:"Fiber-rich foods and plenty of water help with the constipation it commonly causes."},
+    {t:"do", x:"Use the lowest dose for the shortest time that works."} ]},
+  { id:"acetaminophen", name:"Acetaminophen", brands:["Tylenol","Paracetamol"], cls:"Pain / fever", tips:[
+    {t:"do", x:"Stay under the daily maximum on the label — and remember many cold/flu combo products contain acetaminophen too."},
+    {t:"avoid", x:"Limit alcohol — both are processed by the liver."},
+    {t:"do", x:"Often the gentler pain option alongside blood thinners and blood pressure medicines — confirm with your pharmacist."} ]},
+  { id:"allopurinol", name:"Allopurinol", brands:["Zyloprim"], cls:"Gout prevention", tips:[
+    {t:"time", x:"Take after a meal to reduce stomach upset."},
+    {t:"do", x:"Drink plenty of water through the day — it helps the medicine do its job."},
+    {t:"avoid", x:"Limit alcohol and high-purine foods (organ meats, some seafood) — they push uric acid back up."},
+    {t:"do", x:"A new skin rash on this medicine means call your doctor promptly."} ]},
+  { id:"tamsulosin", name:"Tamsulosin", brands:["Flomax"], cls:"Prostate (alpha-blocker)", tips:[
+    {t:"time", x:"Take it about 30 minutes after the same meal each day."},
+    {t:"do", x:"Stand up slowly — dizziness on standing is most common with the first doses."},
+    {t:"avoid", x:"Limit alcohol, which adds to the dizziness."} ]},
+  { id:"iron", name:"Iron supplement", brands:["Ferrous sulfate","Feosol"], cls:"Supplement", tips:[
+    {t:"time", x:"Absorbs best on an empty stomach — but take with a little food if it upsets your stomach."},
+    {t:"eat", x:"Vitamin C (a glass of orange juice) helps iron absorb; coffee, tea, and dairy block it — keep them an hour away."},
+    {t:"avoid", x:"Keep iron at least 2 hours away from antacids, calcium, and thyroid medicine."},
+    {t:"eat", x:"Fiber and water help with the constipation iron often causes."} ]},
+  { id:"vitamind", name:"Vitamin D", brands:["D3","Cholecalciferol"], cls:"Supplement", tips:[
+    {t:"time", x:"Take it with a meal that contains some fat — it absorbs much better that way."},
+    {t:"do", x:"Stick to the dose your doctor suggested; more is not better with vitamin D."} ]},
+];
+
+/* well-known combination cautions (educational flags only) */
+const COMBOS = [
+  { a:["warfarin","apixaban","clopidogrel"], b:["ibuprofen","naproxen","aspirin81"],
+    msg:"A blood thinner combined with an NSAID or aspirin raises bleeding risk. Please confirm this combination with your doctor or pharmacist." },
+  { a:["sertraline","escitalopram","citalopram","fluoxetine","duloxetine"], b:["ibuprofen","naproxen"],
+    msg:"An SSRI/SNRI combined with regular NSAID use slightly raises bleeding risk. Worth a quick check with your pharmacist." },
+  { a:["clopidogrel"], b:["omeprazole"],
+    msg:"Omeprazole can make clopidogrel less effective. Pantoprazole is often the preferred acid reducer with clopidogrel — ask your doctor or pharmacist." },
+  { a:["spironolactone"], b:["lisinopril","losartan"],
+    msg:"This combination is common but raises potassium from two directions. Avoid potassium salt substitutes and keep your blood-test appointments." },
+  { a:["tramadol"], b:["sertraline","escitalopram","citalopram","fluoxetine","duloxetine","trazodone"],
+    msg:"Tramadol combined with antidepressants can rarely cause serotonin syndrome (agitation, fast heartbeat, sweating, confusion). Make sure the prescribers know about both — and learn the warning signs." },
+  { a:["levothyroxine"], b:["iron"],
+    msg:"Iron blocks thyroid medicine absorption. Keep them at least 4 hours apart." },
+  { a:["lisinopril","losartan"], b:["ibuprofen","naproxen"],
+    msg:"NSAIDs can reduce the effect of blood pressure medicines and strain the kidneys when combined. Ask your pharmacist about safer pain-relief options." },
+  { a:["lisinopril"], b:["losartan"],
+    msg:"An ACE inhibitor plus an ARB together is usually avoided. Double-check this combination with your doctor." },
+  { a:["ibuprofen"], b:["naproxen"],
+    msg:"Two NSAIDs together add stomach and kidney risk without much extra benefit. Check with your pharmacist." },
+  { a:["levothyroxine"], b:["omeprazole","pantoprazole"],
+    msg:"Acid reducers can lower levothyroxine absorption over time. Mention this pairing at your next doctor visit so levels can be watched." },
+];
+
+const GENERAL = [
+  {t:"do", x:"Drink water through the day (a glass with each meal and between meals is an easy rhythm) — unless your doctor has set a fluid limit."},
+  {t:"do", x:"Aim for some movement today — even a 20–30 minute walk counts."},
+  {t:"do", x:"Keep a consistent sleep schedule; most medicines and conditions do better with 7–9 hours."},
+  {t:"do", x:"Use one pharmacy if you can — pharmacists catch interactions across all your prescriptions."},
+  {t:"do", x:"Bring your full medication list (including supplements) to every appointment."},
+];
+
+/* ---------------- state ---------------- */
+let myMeds = JSON.parse(localStorage.getItem("medmate.meds") || "[]");
+const save = () => localStorage.setItem("medmate.meds", JSON.stringify(myMeds));
+const byId = id => MEDS.find(m => m.id === id);
+
+/* ---------------- welcome ---------------- */
+if (!localStorage.getItem("medmate.welcomed")) {
+  document.getElementById("welcome").classList.remove("hidden");
+}
+function acceptWelcome() {
+  localStorage.setItem("medmate.welcomed", "1");
+  document.getElementById("welcome").classList.add("hidden");
+}
+
+/* ---------------- tabs ---------------- */
+function showTab(t) {
+  for (const v of ["meds", "plan", "rem", "photo", "report"]) {
+    document.getElementById("view-" + v).classList.toggle("hidden", t !== v);
+    document.getElementById("tab-" + v).classList.toggle("active", t === v);
+  }
+  if (t === "plan") renderPlan();
+  if (t === "rem") { renderReminders(); renderToday(); refreshNotifBanner(); renderMealGrid(); renderCaregiverStatus(); }
+  if (t === "photo") refreshKeyCard();
+  if (t === "report") renderReport();
+}
+
+/* ---------------- search ---------------- */
+const search = document.getElementById("search");
+const suggest = document.getElementById("suggest");
+search.addEventListener("input", () => {
+  const q = search.value.trim().toLowerCase();
+  if (q.length < 2) { suggest.classList.add("hidden"); return; }
+  const hits = MEDS.filter(m =>
+    !myMeds.includes(m.id) &&
+    (m.name.toLowerCase().includes(q) || m.brands.some(b => b.toLowerCase().includes(q)))
+  ).slice(0, 8);
+  if (!hits.length) {
+    suggest.innerHTML = `<div style="cursor:default;color:var(--ink-soft)">No match in MedMate's library yet — ask your pharmacist for guidance on this medication.</div>`;
+  } else {
+    suggest.innerHTML = hits.map(m =>
+      `<div onclick="addMed('${m.id}')"><b>${m.name}</b> <span class="cls">(${m.brands.join(", ")}) — ${m.cls}</span></div>`
+    ).join("");
+  }
+  suggest.classList.remove("hidden");
+});
+document.addEventListener("click", e => {
+  if (!e.target.closest(".search-row")) suggest.classList.add("hidden");
+});
+
+function addMed(id) {
+  if (!myMeds.includes(id)) { myMeds.push(id); save(); }
+  search.value = ""; suggest.classList.add("hidden");
+  renderMeds();
+}
+function removeMed(id) {
+  myMeds = myMeds.filter(x => x !== id); save();
+  delete reminders[id]; saveRem();
+  delete refills[id]; saveRefills();
+  renderMeds();
+}
+
+/* ---------------- render meds ---------------- */
+function renderMeds() {
+  const box = document.getElementById("medlist");
+  if (!myMeds.length) {
+    box.innerHTML = `<div class="empty"><div class="big">🌱</div>No medications yet.<br>Add one above to build your daily plan.</div>`;
+    return;
+  }
+  box.innerHTML = myMeds.map(id => {
+    const m = byId(id);
+    return `<div class="med">
+      <div><div class="name">${m.name}</div><div class="cls">${m.brands.join(", ")} · ${m.cls}</div></div>
+      <button onclick="removeMed('${m.id}')">Remove</button>
+    </div>`;
+  }).join("");
+}
+
+/* ---------------- render plan ---------------- */
+function renderPlan() {
+  const out = document.getElementById("plan-out");
+  if (!myMeds.length) {
+    out.innerHTML = `<div class="card"><div class="empty"><div class="big">📋</div>Add your medications first, and your daily plan will appear here.</div></div>`;
+    return;
+  }
+  const meds = myMeds.map(byId);
+
+  /* combo flags */
+  const flags = [];
+  for (const c of COMBOS) {
+    if (c.a.some(x => myMeds.includes(x)) && c.b.some(x => myMeds.includes(x))) flags.push(c.msg);
+  }
+
+  const section = (t, m) => m.tips.filter(tip => tip.t === t).map(tip =>
+    `<li class="${tip.t}">${tip.x}<span class="src">for ${m.name}</span></li>`).join("");
+
+  const timing = meds.map(m => section("time", m)).join("");
+  const eat    = meds.map(m => section("eat", m)).join("");
+  const avoid  = meds.map(m => section("avoid", m)).join("");
+  const habits = meds.map(m => section("do", m)).join("");
+
+  const today = new Date().toLocaleDateString(undefined, { weekday:"long", month:"long", day:"numeric" });
+
+  out.innerHTML = `
+    <div class="card" style="background:var(--accent-soft);border-color:#bfe3dc">
+      <h2>🌞 Your plan for ${today}</h2>
+      <p class="muted">Built from your ${meds.length} medication${meds.length>1?"s":""}: <b>${meds.map(m=>m.name).join(", ")}</b>. These are general wellness tips — your prescription label and your doctor's instructions always come first.</p>
+    </div>
+    ${flags.map(f => `<div class="alert">⚠️ <strong>Worth checking:</strong> ${f}</div>`).join("")}
+    ${timing ? `<div class="card"><h2>⏰ Timing &amp; how to take <span class="pill info">when</span></h2><ul class="tips">${timing}</ul></div>` : ""}
+    ${eat ? `<div class="card"><h2>🥗 Foods that help <span class="pill good">enjoy</span></h2><ul class="tips">${eat}</ul></div>` : ""}
+    ${avoid ? `<div class="card"><h2>⚠️ Things to limit or keep apart <span class="pill warn">caution</span></h2><ul class="tips">${avoid}</ul></div>` : ""}
+    ${habits ? `<div class="card"><h2>💪 Healthy habits for your medications <span class="pill good">daily</span></h2><ul class="tips">${habits}</ul></div>` : ""}
+    <div class="card"><h2>🌿 Good for everyone today</h2><ul class="tips">${GENERAL.map(g=>`<li class="do">${g.x}</li>`).join("")}</ul></div>
+    <div class="card"><p class="muted">📞 If you feel unwell, notice side effects, or have any doubt about a food or medicine combination, call your pharmacist — it's free and they love these questions. In an emergency, call your local emergency number.</p></div>
+  `;
+}
+
+/* ================= REMINDERS ================= */
+/* reminders: { medId: ["08:00","20:00"] }  doseLog: { "YYYY-MM-DD": { taken:{}, notified:{} } } */
+let reminders = JSON.parse(localStorage.getItem("medmate.reminders") || "{}");
+const saveRem = () => localStorage.setItem("medmate.reminders", JSON.stringify(reminders));
+const todayKey = () => {
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+};
+let doseLog = JSON.parse(localStorage.getItem("medmate.doselog") || "{}");
+function todayLog() {
+  const k = todayKey();
+  if (!doseLog[k]) doseLog[k] = { taken:{}, notified:{} };   // history is kept for adherence reports
+  return doseLog[k];
+}
+const dayKey = offset => {
+  const d = new Date(); d.setDate(d.getDate() + offset);
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+};
+const saveLog = () => {
+  const cutoff = dayKey(-120);                      // keep ~4 months of history
+  for (const k of Object.keys(doseLog)) if (k < cutoff) delete doseLog[k];
+  localStorage.setItem("medmate.doselog", JSON.stringify(doseLog));
+};
+
+const fmt12 = hm => {
+  const [h, m] = hm.split(":").map(Number);
+  const ap = h >= 12 ? "PM" : "AM";
+  return ((h % 12) || 12) + ":" + String(m).padStart(2,"0") + " " + ap;
+};
+const nowHM = () => {
+  const d = new Date();
+  return String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0");
+};
+const minsOf = hm => { const [h,m] = hm.split(":").map(Number); return h*60 + m; };
+
+function addRemTime(id) {
+  const inp = document.getElementById("rt-" + id);
+  if (!inp.value) { inp.focus(); return; }
+  const list = reminders[id] || (reminders[id] = []);
+  if (!list.includes(inp.value)) { list.push(inp.value); list.sort(); }
+  saveRem(); inp.value = "";
+  renderReminders(); renderToday();
+}
+function removeRemTime(id, time) {
+  reminders[id] = (reminders[id] || []).filter(t => t !== time);
+  if (!reminders[id].length) delete reminders[id];
+  saveRem(); renderReminders(); renderToday();
+}
+
+/* ---- life-window (meal) reminders ---- */
+let mealTimes = JSON.parse(localStorage.getItem("medmate.mealtimes") ||
+  '{"breakfast":"08:00","lunch":"12:30","dinner":"18:30","bedtime":"22:00"}');
+const MEALS = [
+  ["breakfast", "☀️ Breakfast"], ["lunch", "🍽️ Lunch"],
+  ["dinner", "🌙 Dinner"], ["bedtime", "🛏️ Bedtime"],
+];
+const saveMeals = () => localStorage.setItem("medmate.mealtimes", JSON.stringify(mealTimes));
+const windowLabel = t => { const m = MEALS.find(([k]) => mealTimes[k] === t); return m ? m[1] : null; };
+const showTime = t => { const w = windowLabel(t); return w ? `${w} (${fmt12(t)})` : fmt12(t); };
+
+function renderMealGrid() {
+  document.getElementById("meal-grid").innerHTML = MEALS.map(([k, label]) => `
+    <label style="font-size:.9rem;color:var(--ink-soft)">${label}<br>
+      <input type="time" value="${mealTimes[k]}" onchange="setMeal('${k}', this.value)"
+             style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;margin-top:3px">
+    </label>`).join("");
+}
+function setMeal(k, v) {
+  if (!v) return;
+  const old = mealTimes[k];
+  mealTimes[k] = v; saveMeals();
+  // move any reminders that were pinned to this meal window
+  for (const id of Object.keys(reminders)) {
+    reminders[id] = reminders[id].map(t => t === old ? v : t).sort();
+  }
+  saveRem(); renderReminders(); renderToday();
+}
+function addMealTime(id, k) {
+  const list = reminders[id] || (reminders[id] = []);
+  if (!list.includes(mealTimes[k])) { list.push(mealTimes[k]); list.sort(); }
+  saveRem(); renderReminders(); renderToday();
+}
+
+/* ---- snooze (no angry pillbox) ---- */
+function snoozeDose(key) {
+  const log = todayLog();
+  if (!log.snooze) log.snooze = {};
+  log.snooze[key] = minsOf(nowHM()) + 30;
+  delete log.notified[key];
+  saveLog(); renderToday();
+}
+const fmtMin = m => fmt12(String(Math.floor((m % 1440) / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0"));
+
+/* ---- caregiver backup ---- */
+let caregiver = JSON.parse(localStorage.getItem("medmate.caregiver") || "null");
+function saveCaregiver() {
+  const name = document.getElementById("cg-name").value.trim();
+  const phone = document.getElementById("cg-phone").value.trim();
+  caregiver = (name && phone) ? { name, phone } : null;
+  if (caregiver) localStorage.setItem("medmate.caregiver", JSON.stringify(caregiver));
+  else localStorage.removeItem("medmate.caregiver");
+  renderCaregiverStatus(); renderToday();
+}
+function renderCaregiverStatus() {
+  const s = document.getElementById("cg-status");
+  if (!s) return;
+  s.innerHTML = caregiver
+    ? `✅ ${caregiver.name} will be suggested when a dose runs 2+ hours late. <a href="#" onclick="caregiver=null;localStorage.removeItem('medmate.caregiver');renderCaregiverStatus();renderToday();return false">Remove</a>`
+    : "No caregiver set.";
+  if (caregiver) { document.getElementById("cg-name").value = caregiver.name; document.getElementById("cg-phone").value = caregiver.phone; }
+}
+function markTaken(key) {
+  todayLog().taken[key] = true; saveLog();
+  const medId = key.split("@")[0];
+  if (refills[medId] != null && refills[medId] > 0) { refills[medId]--; saveRefills(); }
+  renderToday();
+}
+function unmarkTaken(key) {
+  delete todayLog().taken[key]; saveLog();
+  const medId = key.split("@")[0];
+  if (refills[medId] != null) { refills[medId]++; saveRefills(); }
+  renderToday();
+}
+
+function renderReminders() {
+  const box = document.getElementById("rem-list");
+  if (!myMeds.length) {
+    box.innerHTML = `<div class="empty"><div class="big">🌱</div>Add medications on the first tab, then set reminder times here.</div>`;
+    return;
+  }
+  box.innerHTML = myMeds.map(id => {
+    const m = byId(id);
+    const times = reminders[id] || [];
+    return `<div class="rem-row">
+      <div class="name">${m.name} <span class="cls" style="font-weight:400;color:var(--ink-soft)">· ${m.cls}</span></div>
+      <div class="controls" style="margin-bottom:7px">
+        ${times.map(t => `<span class="time-pill">${showTime(t)}<button title="Remove this time" onclick="removeRemTime('${id}','${t}')">✕</button></span>`).join("")}
+      </div>
+      <div class="controls">
+        ${MEALS.map(([k, label]) => `<button class="btn-small ghost" onclick="addMealTime('${id}','${k}')">+ ${label}</button>`).join("")}
+        <input type="time" id="rt-${id}">
+        <button class="btn-small" onclick="addRemTime('${id}')">Add exact time</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function renderToday() {
+  const box = document.getElementById("today-list");
+  if (!box) return;
+  const entries = [];
+  for (const id of myMeds) {
+    for (const t of (reminders[id] || [])) entries.push({ id, t, key: id + "@" + t });
+  }
+  if (!entries.length) {
+    box.innerHTML = `<div class="empty"><div class="big">🔕</div>No reminder times set yet.<br>Add times below and today's checklist will appear here.</div>`;
+    return;
+  }
+  entries.sort((a, b) => a.t.localeCompare(b.t));
+  const now = nowHM(), nowMin = minsOf(now), log = todayLog();
+  const overdue = [];
+  const rows = entries.map(e => {
+    const m = byId(e.id);
+    const taken = !!log.taken[e.key];
+    const snoozedUntil = log.snooze?.[e.key];
+    const snoozed = !taken && snoozedUntil != null && nowMin < snoozedUntil;
+    const due = !taken && !snoozed && e.t <= now;
+    if (!taken && e.t <= now && nowMin - minsOf(e.t) >= 120) overdue.push({ med: m.name, time: e.t });
+    const cls = taken ? "taken" : due ? "due" : "upcoming";
+    const status = taken ? "✓ Taken" : snoozed ? "😴 Snoozed until " + fmtMin(snoozedUntil) : due ? "Due now" : "Upcoming";
+    const btn = taken
+      ? `<button class="btn-small ghost" onclick="unmarkTaken('${e.key}')">Undo</button>`
+      : `<button class="btn-small" onclick="markTaken('${e.key}')">Mark taken</button>` +
+        (due ? ` <button class="btn-small ghost" onclick="snoozeDose('${e.key}')">😴 30 min</button>` : "");
+    return `<div class="today-item ${cls}">
+      <span class="t">${fmt12(e.t)}</span>
+      <span style="flex:1"><b>${m.name}</b>${windowLabel(e.t) ? `<br><span class="muted" style="font-size:.8rem">${windowLabel(e.t)}</span>` : ""}</span>
+      <span class="status">${status}</span>
+      ${btn}
+    </div>`;
+  }).join("");
+
+  let banner = "";
+  if (overdue.length && caregiver) {
+    const list = overdue.map(o => `${o.med} (${fmt12(o.time)})`).join(", ");
+    const sms = `sms:${caregiver.phone.replace(/[^\d+]/g, "")}?&body=` + encodeURIComponent(
+      `Hi ${caregiver.name}, this is a MedMate nudge — I haven't marked these as taken yet today: ${list}. Just letting you know!`);
+    banner = `<div class="alert">👪 <strong>${list}</strong> — more than 2 hours overdue.
+      <a href="${sms}" style="font-weight:700">📨 Text ${caregiver.name}</a></div>`;
+  }
+  box.innerHTML = banner + rows;
+}
+
+/* ---- notifications + chime ---- */
+function refreshNotifBanner() {
+  const b = document.getElementById("notif-banner");
+  b.classList.toggle("hidden", !("Notification" in window) || Notification.permission !== "default");
+}
+function askNotif() {
+  Notification.requestPermission().then(refreshNotifBanner);
+}
+function chime() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, .35, .7].forEach((dly, i) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = "sine"; o.frequency.value = 880 + i * 110;
+      g.gain.setValueAtTime(.001, ctx.currentTime + dly);
+      g.gain.exponentialRampToValueAtTime(.25, ctx.currentTime + dly + .05);
+      g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + dly + .3);
+      o.start(ctx.currentTime + dly); o.stop(ctx.currentTime + dly + .35);
+    });
+  } catch (e) { /* audio unavailable */ }
+}
+function notifyDose(med, time) {
+  if ("Notification" in window && Notification.permission === "granted") {
+    new Notification("💊 Time for your medication", {
+      body: med.name + " — scheduled for " + fmt12(time) + ". Open MedMate to mark it taken.",
+      tag: "medmate-" + med.id + "-" + time,
+    });
+  }
+  chime();
+}
+
+function tick() {
+  const now = minsOf(nowHM()), log = todayLog();
+  let fired = false;
+  for (const id of myMeds) {
+    for (const t of (reminders[id] || [])) {
+      const key = id + "@" + t;
+      if (log.taken[key] || log.notified[key]) continue;
+      const snoozedUntil = log.snooze?.[key];
+      if (snoozedUntil != null) {             // snoozed: ring again only once the snooze expires
+        if (now >= snoozedUntil) {
+          delete log.snooze[key];
+          log.notified[key] = true; fired = true;
+          notifyDose(byId(id), t);
+        }
+        continue;
+      }
+      const diff = now - minsOf(t);
+      if (diff >= 0 && diff <= 60) {          // due within the last hour → ring once
+        log.notified[key] = true; fired = true;
+        notifyDose(byId(id), t);
+      } else if (diff > 60) {                 // long past — show as due in list, but don't ring
+        log.notified[key] = true; fired = true;
+      }
+    }
+  }
+  if (fired) { saveLog(); renderToday(); }
+}
+setInterval(tick, 15000);
+tick();
+
+/* ================= PHOTO CHECK (Claude vision) ================= */
+const KEY_STORE = "medmate.apikey";
+let photoData = null;   // { data: base64, mediaType: "image/jpeg" }
+
+function refreshKeyCard() {
+  const key = localStorage.getItem(KEY_STORE);
+  const status = document.getElementById("key-status");
+  status.classList.toggle("hidden", !key);
+  if (key) {
+    status.innerHTML = `✅ Key saved (ends in …${key.slice(-4)}). <a href="#" onclick="clearKey();return false">Remove it</a>`;
+    document.getElementById("api-key").placeholder = "Key saved — paste a new one to replace it";
+  }
+}
+function saveKey() {
+  const inp = document.getElementById("api-key");
+  const v = inp.value.trim();
+  if (!v) { inp.focus(); return; }
+  localStorage.setItem(KEY_STORE, v);
+  inp.value = "";
+  refreshKeyCard();
+}
+function clearKey() {
+  localStorage.removeItem(KEY_STORE);
+  document.getElementById("api-key").placeholder = "sk-ant-...";
+  refreshKeyCard();
+}
+
+/* compress the photo so uploads stay small */
+document.getElementById("photo-input").addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const img = new Image();
+  img.onload = () => {
+    const MAX = 1024;
+    const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(img.width * scale);
+    canvas.height = Math.round(img.height * scale);
+    canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+    const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
+    photoData = { data: dataUrl.split(",")[1], mediaType: "image/jpeg" };
+    const prev = document.getElementById("photo-preview");
+    prev.src = dataUrl;
+    prev.classList.remove("hidden");
+    document.getElementById("photo-placeholder").classList.add("hidden");
+    document.getElementById("analyze-btn").classList.remove("hidden");
+    document.getElementById("photo-result").innerHTML = "";
+    URL.revokeObjectURL(img.src);
+  };
+  img.src = URL.createObjectURL(file);
+});
+
+const RESULT_SCHEMA = {
+  type: "object",
+  properties: {
+    item_type: { type: "string", enum: ["food", "drink", "exercise_equipment", "other"] },
+    name: { type: "string" },
+    verdict: { type: "string", enum: ["recommended", "caution", "not_recommended"] },
+    calories: { type: "string", description: "Approximate calorie range per typical serving for food/drink, e.g. '≈ 350–450 kcal per plate'. 'Not applicable' for equipment/other." },
+    summary: { type: "string", description: "2-3 plain-language sentences explaining the verdict for this user." },
+    medication_notes: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: { medication: { type: "string" }, note: { type: "string" } },
+        required: ["medication", "note"],
+        additionalProperties: false
+      }
+    },
+    tips: { type: "array", items: { type: "string" }, description: "1-3 short practical tips (portion, timing, safer alternative, how to use the machine gently)." }
+  },
+  required: ["item_type", "name", "verdict", "calories", "summary", "medication_notes", "tips"],
+  additionalProperties: false
+};
+
+async function analyzePhoto() {
+  const key = localStorage.getItem(KEY_STORE);
+  const out = document.getElementById("photo-result");
+  if (!key) {
+    out.innerHTML = `<div class="alert">🔑 <strong>Add your API key first</strong> — see the setup card at the top of this tab.</div>`;
+    document.getElementById("api-key").focus();
+    return;
+  }
+  if (!photoData) return;
+
+  const btn = document.getElementById("analyze-btn");
+  btn.disabled = true;
+  out.innerHTML = `<div class="card"><span class="spinner"></span> Looking at your photo…</div>`;
+
+  const meds = myMeds.map(id => { const m = byId(id); return `${m.name} (${m.cls})`; });
+  const prompt =
+`You are a cautious general-wellness assistant inside a medication companion app. The user takes these medications: ${meds.length ? meds.join("; ") : "none listed"}.
+
+Look at the photo. It should show either a food/drink or a piece of exercise equipment.
+1. Identify what it is.
+2. If food or drink: give an approximate calorie range for a typical serving as shown.
+3. Give a verdict for THIS user: "recommended" (fine to enjoy/use), "caution" (okay with care — explain), or "not_recommended" (better to skip — explain).
+4. Note any well-known, widely published interactions or considerations between the item and the user's specific medications (e.g. grapefruit with statins, vitamin K consistency with warfarin, salt with blood-pressure medicines, strenuous machines with beta-blockers). Only mention real, well-established considerations — do not invent any.
+5. Keep language simple and kind. Never give dosing advice. When in doubt, recommend asking a pharmacist or doctor.
+If the photo is not food, drink, or exercise equipment, set item_type to "other" and explain briefly.`;
+
+  try {
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": key,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: "claude-opus-4-8",
+        max_tokens: 2048,
+        output_config: { format: { type: "json_schema", schema: RESULT_SCHEMA } },
+        messages: [{
+          role: "user",
+          content: [
+            { type: "image", source: { type: "base64", media_type: photoData.mediaType, data: photoData.data } },
+            { type: "text", text: prompt }
+          ]
+        }]
+      })
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      const msg = err?.error?.message || resp.statusText;
+      out.innerHTML = `<div class="alert">⚠️ <strong>Couldn't check the photo.</strong> ${
+        resp.status === 401 ? "Your API key was rejected — double-check it in the setup card above." : msg
+      }</div>`;
+      return;
+    }
+
+    const data = await resp.json();
+    const text = (data.content || []).find(b => b.type === "text")?.text || "{}";
+    renderPhotoResult(JSON.parse(text));
+  } catch (e) {
+    out.innerHTML = `<div class="alert">⚠️ <strong>Network problem.</strong> Check your internet connection and try again. (${e.message})</div>`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function renderPhotoResult(r) {
+  const out = document.getElementById("photo-result");
+  const V = {
+    recommended:     { icon: "✅", label: "Good choice for you" },
+    caution:         { icon: "⚠️", label: "Okay — with a little care" },
+    not_recommended: { icon: "🚫", label: "Better to skip this one" },
+  }[r.verdict] || { icon: "ℹ️", label: "Here's what I found" };
+
+  const isFood = r.item_type === "food" || r.item_type === "drink";
+  out.innerHTML = `
+    <div class="card">
+      <div class="verdict ${r.verdict}"><span class="icon">${V.icon}</span> ${V.label}</div>
+      <h2 style="margin-bottom:6px">${r.name}</h2>
+      ${isFood && r.calories && r.calories.toLowerCase() !== "not applicable"
+        ? `<div class="calorie-chip">🔥 ${r.calories}</div>` : ""}
+      <p style="margin-bottom:10px">${r.summary}</p>
+      ${r.medication_notes?.length ? `
+        <h2 style="font-size:.98rem">💊 With your medications</h2>
+        <ul class="tips">${r.medication_notes.map(n =>
+          `<li class="avoid">${n.note}<span class="src">for ${n.medication}</span></li>`).join("")}</ul>` : ""}
+      ${r.tips?.length ? `
+        <h2 style="font-size:.98rem;margin-top:10px">💡 Tips</h2>
+        <ul class="tips">${r.tips.map(t => `<li class="do">${t}</li>`).join("")}</ul>` : ""}
+      <p class="muted" style="margin-top:10px">Estimates only — confirm anything important with your pharmacist or doctor.</p>
+    </div>`;
+}
+
+/* ================= REPORT TAB ================= */
+/* refills: { medId: pillsRemaining } */
+let refills = JSON.parse(localStorage.getItem("medmate.refills") || "{}");
+const saveRefills = () => localStorage.setItem("medmate.refills", JSON.stringify(refills));
+
+/* doses per day a med is scheduled for (for refill forecasting) */
+const dosesPerDay = id => (reminders[id] || []).length || 1;
+
+function adherenceStats(days = 30) {
+  const expected = myMeds.reduce((n, id) => n + (reminders[id] || []).length, 0);
+  let taken = 0, possible = 0, daysWithData = 0, fullDays = 0;
+  for (let i = 0; i < days; i++) {
+    const log = doseLog[dayKey(-i)];
+    if (!log || !expected) continue;
+    const t = Math.min(Object.keys(log.taken || {}).length, expected);
+    daysWithData++; taken += t; possible += expected;
+    if (t >= expected) fullDays++;
+  }
+  return { expected, taken, possible, daysWithData, fullDays,
+           pct: possible ? Math.round(taken / possible * 100) : null };
+}
+
+function setRefillCount(id) {
+  const inp = document.getElementById("rf-" + id);
+  const v = parseInt(inp.value, 10);
+  if (isNaN(v) || v < 0) { inp.focus(); return; }
+  refills[id] = v; saveRefills(); renderReport();
+}
+function clearRefill(id) { delete refills[id]; saveRefills(); renderReport(); }
+
+function refillStatus(id) {
+  if (refills[id] == null) return null;
+  const daysLeft = Math.floor(refills[id] / dosesPerDay(id));
+  return { pills: refills[id], daysLeft, low: daysLeft <= 7 };
+}
+
+function renderReport() {
+  /* refill alerts */
+  const alerts = [];
+  for (const id of myMeds) {
+    const r = refillStatus(id);
+    if (r && r.low) alerts.push(`<div class="alert">💊 <strong>Refill soon:</strong> ${byId(id).name} — about <b>${r.daysLeft} day${r.daysLeft === 1 ? "" : "s"}</b> of pills left (${r.pills} remaining). Time to call the pharmacy.</div>`);
+  }
+  document.getElementById("refill-alerts").innerHTML = alerts.join("");
+
+  /* adherence */
+  const a = adherenceStats(30);
+  document.getElementById("adherence-box").innerHTML = !a.expected
+    ? `<p class="muted">Set reminder times on the ⏰ Reminders tab — adherence tracking starts as soon as you mark doses taken.</p>`
+    : !a.daysWithData
+      ? `<p class="muted">No doses logged yet. Mark doses as taken on the ⏰ Reminders tab and your stats will appear here.</p>`
+      : `<div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap">
+           <div class="adh-big">${a.pct}%</div>
+           <div class="muted">
+             <b>${a.taken}</b> of <b>${a.possible}</b> scheduled doses taken<br>
+             <b>${a.fullDays}</b> perfect day${a.fullDays === 1 ? "" : "s"} out of ${a.daysWithData} tracked
+           </div>
+         </div>`;
+
+  /* heatmap: last 35 days, oldest first */
+  const cells = [];
+  for (let i = -34; i <= 0; i++) {
+    const k = dayKey(i), log = doseLog[k];
+    const d = new Date(); d.setDate(d.getDate() + i);
+    let cls = "";
+    if (log && a.expected) {
+      const t = Object.keys(log.taken || {}).length;
+      cls = t >= a.expected ? "full" : t > 0 ? "part" : "miss";
+    }
+    cells.push(`<div class="cell ${cls}" title="${k}">${d.getDate()}</div>`);
+  }
+  document.getElementById("heatmap").innerHTML = cells.join("");
+
+  /* refill list */
+  const box = document.getElementById("refill-list");
+  box.innerHTML = !myMeds.length
+    ? `<div class="empty"><div class="big">🌱</div>Add medications first.</div>`
+    : myMeds.map(id => {
+        const m = byId(id), r = refillStatus(id);
+        return `<div class="rem-row refill-row">
+          <div class="name">${m.name}</div>
+          <div class="controls">
+            ${r ? `<span class="refill-chip ${r.low ? "low" : ""}">${r.pills} pills · ~${r.daysLeft} days</span>
+                   <button class="btn-small ghost" onclick="clearRefill('${id}')">Stop tracking</button>`
+                : `<span class="muted">not tracked</span>`}
+            <input type="number" id="rf-${id}" min="0" max="1000" placeholder="pills in bottle">
+            <button class="btn-small" onclick="setRefillCount('${id}')">${r ? "Update" : "Set"}</button>
+          </div>
+        </div>`;
+      }).join("");
+}
+
+/* ---- printable doctor report ---- */
+function printReport() {
+  const a = adherenceStats(30);
+  const today = new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
+  const rows = myMeds.map(id => {
+    const m = byId(id), r = refillStatus(id);
+    return `<tr>
+      <td><b>${m.name}</b><br><span class="small">${m.brands.join(", ")}</span></td>
+      <td>${m.cls}</td>
+      <td>${(reminders[id] || []).map(fmt12).join(", ") || "—"}</td>
+      <td>${r ? r.pills + " (~" + r.daysLeft + " days)" : "—"}</td>
+    </tr>`;
+  }).join("");
+  const flags = [];
+  for (const c of COMBOS) {
+    if (c.a.some(x => myMeds.includes(x)) && c.b.some(x => myMeds.includes(x))) flags.push(c.msg);
+  }
+  document.getElementById("print-report").innerHTML = `
+    <h1>Medication Summary</h1>
+    <p class="small">Prepared with MedMate on ${today} · Patient name: ______________________</p>
+    <h2>Current medications (${myMeds.length})</h2>
+    <table>
+      <tr><th>Medication</th><th>Type</th><th>Reminder times</th><th>Pills remaining</th></tr>
+      ${rows || `<tr><td colspan="4">No medications recorded.</td></tr>`}
+    </table>
+    <h2>Adherence — last 30 days</h2>
+    <p>${a.pct != null && a.daysWithData
+        ? `<b>${a.pct}%</b> of scheduled doses taken (${a.taken} of ${a.possible}); ${a.fullDays} fully-adherent day(s) across ${a.daysWithData} tracked day(s).`
+        : "Not enough data recorded yet."}</p>
+    <h2>Flagged combinations to discuss</h2>
+    ${flags.length ? "<ul>" + flags.map(f => `<li>${f}</li>`).join("") + "</ul>" : "<p>None flagged by the app.</p>"}
+    <p class="small">Generated by MedMate, a personal wellness app. Self-reported data — not a medical record. Please verify details with the patient.</p>
+  `;
+  window.print();
+}
+
+/* ---- backup & restore ---- */
+function exportData() {
+  const data = {};
+  for (const k of Object.keys(localStorage)) {
+    if (k.startsWith("medmate.") && k !== "medmate.apikey") data[k] = localStorage.getItem(k);
+  }
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const aEl = document.createElement("a");
+  aEl.href = URL.createObjectURL(blob);
+  aEl.download = "medmate-backup-" + todayKey() + ".json";
+  aEl.click();
+  URL.revokeObjectURL(aEl.href);
+}
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      const keys = Object.keys(data).filter(k => k.startsWith("medmate."));
+      if (!keys.length) throw new Error("not a MedMate backup");
+      keys.forEach(k => localStorage.setItem(k, data[k]));
+      location.reload();
+    } catch {
+      document.getElementById("refill-alerts").innerHTML =
+        `<div class="alert">⚠️ <strong>That file doesn't look like a MedMate backup.</strong> Choose the .json file you downloaded earlier.</div>`;
+    }
+  };
+  reader.readAsText(file);
+}
+
+/* ================= TEXT SIZE (accessibility) ================= */
+const FONT_STEPS = ["", "font-lg", "font-xl"];
+const FONT_LABELS = ["Aa", "Aa+", "Aa++"];
+let fontIdx = parseInt(localStorage.getItem("medmate.font") || "0", 10) % FONT_STEPS.length;
+function applyFont() {
+  document.documentElement.className = FONT_STEPS[fontIdx];
+  document.getElementById("font-btn").textContent = FONT_LABELS[fontIdx];
+}
+function cycleFont() {
+  fontIdx = (fontIdx + 1) % FONT_STEPS.length;
+  localStorage.setItem("medmate.font", String(fontIdx));
+  applyFont();
+}
+applyFont();
+
+/* ================= SCAN A BOTTLE (Claude vision) ================= */
+function fileToJpeg(file, maxPx, cb) {
+  const img = new Image();
+  img.onload = () => {
+    const scale = Math.min(1, maxPx / Math.max(img.width, img.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(img.width * scale);
+    canvas.height = Math.round(img.height * scale);
+    canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+    URL.revokeObjectURL(img.src);
+    cb(canvas.toDataURL("image/jpeg", 0.85).split(",")[1]);
+  };
+  img.src = URL.createObjectURL(file);
+}
+
+function matchMed(name) {
+  const n = name.toLowerCase().trim();
+  if (n.length < 4) return null;
+  return MEDS.find(m =>
+    m.name.toLowerCase().split(" ")[0] === n.split(" ")[0] ||
+    m.name.toLowerCase().includes(n) || n.includes(m.name.toLowerCase().split(" ")[0]) ||
+    m.brands.some(b => b.toLowerCase() === n || n.includes(b.toLowerCase()))
+  ) || null;
+}
+
+document.getElementById("scan-input").addEventListener("change", e => {
+  const file = e.target.files[0];
+  e.target.value = "";
+  if (!file) return;
+  const out = document.getElementById("scan-result");
+  const key = localStorage.getItem(KEY_STORE);
+  if (!key) {
+    out.innerHTML = `<div class="alert" style="margin-top:12px">🔑 <strong>One-time setup needed:</strong> add your API key on the 📷 Photo Check tab, then scanning works here too.</div>`;
+    return;
+  }
+  out.innerHTML = `<div class="card" style="margin-top:12px"><span class="spinner"></span> Reading the label…</div>`;
+  fileToJpeg(file, 1280, async (b64) => {
+    try {
+      const resp = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-api-key": key,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true"
+        },
+        body: JSON.stringify({
+          model: "claude-opus-4-8",
+          max_tokens: 1024,
+          output_config: { format: { type: "json_schema", schema: {
+            type: "object",
+            properties: {
+              medications: { type: "array", items: {
+                type: "object",
+                properties: { name: { type: "string", description: "Generic or brand medication name as printed" },
+                              strength: { type: "string", description: "e.g. '500 mg', or empty if not visible" } },
+                required: ["name", "strength"], additionalProperties: false } },
+              readable: { type: "boolean" }
+            },
+            required: ["medications", "readable"], additionalProperties: false
+          } } },
+          messages: [{ role: "user", content: [
+            { type: "image", source: { type: "base64", media_type: "image/jpeg", data: b64 } },
+            { type: "text", text: "Read this medication bottle or package label. List every medication name printed on it (generic and/or brand) with its strength if visible. Set readable=false if no medication label is legible in the photo." }
+          ] }]
+        })
+      });
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        out.innerHTML = `<div class="alert" style="margin-top:12px">⚠️ <strong>Couldn't read the label.</strong> ${resp.status === 401 ? "Your API key was rejected — check it on the Photo Check tab." : (err?.error?.message || resp.statusText)}</div>`;
+        return;
+      }
+      const data = await resp.json();
+      const r = JSON.parse((data.content || []).find(b => b.type === "text")?.text || "{}");
+      if (!r.readable || !r.medications?.length) {
+        out.innerHTML = `<div class="alert" style="margin-top:12px">🔍 <strong>Couldn't make out a medication name.</strong> Try again with the label flat, well-lit, and filling the photo.</div>`;
+        return;
+      }
+      const added = [], already = [], unknown = [];
+      for (const med of r.medications) {
+        const m = matchMed(med.name);
+        if (!m) { unknown.push(med.name + (med.strength ? " " + med.strength : "")); continue; }
+        if (myMeds.includes(m.id)) { already.push(m.name); continue; }
+        myMeds.push(m.id); added.push(m.name);
+      }
+      save(); renderMeds();
+      out.innerHTML = `<div class="card" style="margin-top:12px">
+        ${added.length ? `<p>✅ <b>Added:</b> ${added.join(", ")}</p>` : ""}
+        ${already.length ? `<p class="muted">Already on your list: ${already.join(", ")}</p>` : ""}
+        ${unknown.length ? `<p class="muted">⚠️ Read "<b>${unknown.join('", "')}</b>" but it isn't in MedMate's library yet — ask your pharmacist about food and timing guidance for it.</p>` : ""}
+      </div>`;
+    } catch (err) {
+      out.innerHTML = `<div class="alert" style="margin-top:12px">⚠️ <strong>Network problem.</strong> Check your connection and try again. (${err.message})</div>`;
+    }
+  });
+});
+
+renderMeds();
+
+/* PWA: register the service worker so MedMate can be installed and works offline */
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./sw.js").catch(() => {});
+}
+</script>
+</body>
+</html>
